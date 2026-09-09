@@ -42,6 +42,7 @@ final class RolePermissionMap
                 Permission::MANAGE_GOALS,
                 Permission::VIEW_FOLLOW_UP,
                 Permission::MANAGE_FOLLOW_UP,
+                Permission::VIEW_TIMELINE,
             ],
             TenantRole::ADMIN => [
                 Permission::MANAGE_TENANT,
@@ -69,6 +70,7 @@ final class RolePermissionMap
                 Permission::MANAGE_GOALS,
                 Permission::VIEW_FOLLOW_UP,
                 Permission::MANAGE_FOLLOW_UP,
+                Permission::VIEW_TIMELINE,
             ],
             TenantRole::MANAGER => [
                 Permission::VIEW_ALL_STUDENTS,
@@ -93,6 +95,7 @@ final class RolePermissionMap
                 Permission::MANAGE_GOALS,
                 Permission::VIEW_FOLLOW_UP,
                 Permission::MANAGE_FOLLOW_UP,
+                Permission::VIEW_TIMELINE,
             ],
             TenantRole::TRAINER => [
                 Permission::VIEW_ASSIGNED_STUDENTS,
@@ -116,6 +119,7 @@ final class RolePermissionMap
                 Permission::MANAGE_GOALS,
                 Permission::VIEW_FOLLOW_UP,
                 Permission::MANAGE_FOLLOW_UP,
+                Permission::VIEW_TIMELINE,
             ],
             TenantRole::ASSISTANT => [
                 Permission::VIEW_ASSIGNED_STUDENTS,
@@ -129,6 +133,7 @@ final class RolePermissionMap
                 Permission::VIEW_ANAMNESIS,
                 Permission::VIEW_GOALS,
                 Permission::VIEW_FOLLOW_UP,
+                Permission::VIEW_TIMELINE,
             ],
             TenantRole::FINANCE => [
                 Permission::MANAGE_FINANCES,
@@ -150,6 +155,7 @@ final class RolePermissionMap
                 Permission::VIEW_GOALS,
                 Permission::VIEW_FOLLOW_UP,
                 Permission::MANAGE_FOLLOW_UP,
+                Permission::VIEW_TIMELINE,
             ],
         };
     }

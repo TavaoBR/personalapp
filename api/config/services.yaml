@@ -85,6 +85,10 @@ when@test:
             public: true
             autowire: true
             autoconfigure: true
+        App\Application\Service\TimelineService:
+            public: true
+            autowire: true
+            autoconfigure: true
 
 
 

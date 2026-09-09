@@ -35,4 +35,5 @@ enum Permission: string
     case MANAGE_GOALS = 'MANAGE_GOALS';
     case VIEW_FOLLOW_UP = 'VIEW_FOLLOW_UP';
     case MANAGE_FOLLOW_UP = 'MANAGE_FOLLOW_UP';
+    case VIEW_TIMELINE = 'VIEW_TIMELINE';
 }
