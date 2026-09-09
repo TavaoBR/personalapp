@@ -122,6 +122,7 @@ class StudentWorkoutPlanService
             notes: $templateVersion?->getNotes()
         );
         $this->planVersionRepository->save($planVersion, false);
+        $plan->addVersion($planVersion);
 
         // Cópia profunda (deep clone) dos dias e exercícios do template
         if ($templateVersion !== null) {
@@ -184,6 +185,7 @@ class StudentWorkoutPlanService
             notes: $notes
         );
         $this->planVersionRepository->save($planVersion, false);
+        $plan->addVersion($planVersion);
 
         $this->populateDaysAndExercises($planVersion, $daysData, $tenant);
 
@@ -217,6 +219,7 @@ class StudentWorkoutPlanService
             notes: $notes ?? $latest?->getNotes()
         );
         $this->planVersionRepository->save($newVersion, false);
+        $plan->addVersion($newVersion);
 
         $this->populateDaysAndExercises($newVersion, $daysData, $tenant);
 

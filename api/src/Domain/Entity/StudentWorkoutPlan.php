@@ -134,6 +134,14 @@ class StudentWorkoutPlan
         return $this->versions;
     }
 
+    public function addVersion(StudentWorkoutPlanVersion $version): self
+    {
+        if (!$this->versions->contains($version)) {
+            $this->versions->add($version);
+        }
+        return $this;
+    }
+
     public function touch(): void
     {
         $this->updatedAt = new DateTimeImmutable();

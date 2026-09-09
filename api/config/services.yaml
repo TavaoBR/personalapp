@@ -61,4 +61,9 @@ when@test:
             public: true
             autowire: true
             autoconfigure: true
+        App\Application\Service\WorkoutSessionService:
+            public: true
+            autowire: true
+            autoconfigure: true
+
 

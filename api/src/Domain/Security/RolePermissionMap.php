@@ -29,6 +29,8 @@ final class RolePermissionMap
                 Permission::MANAGE_WORKOUT_TEMPLATES,
                 Permission::VIEW_WORKOUT_PLANS,
                 Permission::MANAGE_WORKOUT_PLANS,
+                Permission::VIEW_WORKOUT_SESSIONS,
+                Permission::MANAGE_WORKOUT_SESSIONS,
             ],
             TenantRole::ADMIN => [
                 Permission::MANAGE_TENANT,
@@ -43,6 +45,8 @@ final class RolePermissionMap
                 Permission::MANAGE_WORKOUT_TEMPLATES,
                 Permission::VIEW_WORKOUT_PLANS,
                 Permission::MANAGE_WORKOUT_PLANS,
+                Permission::VIEW_WORKOUT_SESSIONS,
+                Permission::MANAGE_WORKOUT_SESSIONS,
             ],
             TenantRole::MANAGER => [
                 Permission::VIEW_ALL_STUDENTS,
@@ -54,6 +58,8 @@ final class RolePermissionMap
                 Permission::MANAGE_WORKOUT_TEMPLATES,
                 Permission::VIEW_WORKOUT_PLANS,
                 Permission::MANAGE_WORKOUT_PLANS,
+                Permission::VIEW_WORKOUT_SESSIONS,
+                Permission::MANAGE_WORKOUT_SESSIONS,
             ],
             TenantRole::TRAINER => [
                 Permission::VIEW_ASSIGNED_STUDENTS,
@@ -64,12 +70,15 @@ final class RolePermissionMap
                 Permission::MANAGE_WORKOUT_TEMPLATES,
                 Permission::VIEW_WORKOUT_PLANS,
                 Permission::MANAGE_WORKOUT_PLANS,
+                Permission::VIEW_WORKOUT_SESSIONS,
+                Permission::MANAGE_WORKOUT_SESSIONS,
             ],
             TenantRole::ASSISTANT => [
                 Permission::VIEW_ASSIGNED_STUDENTS,
                 Permission::VIEW_EXERCISES,
                 Permission::VIEW_WORKOUT_TEMPLATES,
                 Permission::VIEW_WORKOUT_PLANS,
+                Permission::VIEW_WORKOUT_SESSIONS,
             ],
             TenantRole::FINANCE => [
                 Permission::MANAGE_FINANCES,
@@ -80,6 +89,8 @@ final class RolePermissionMap
                 Permission::EDIT_OWN_STUDENT_PROFILE,
                 Permission::VIEW_EXERCISES,
                 Permission::VIEW_WORKOUT_PLANS,
+                Permission::VIEW_WORKOUT_SESSIONS,
+                Permission::MANAGE_WORKOUT_SESSIONS,
             ],
         };
     }
