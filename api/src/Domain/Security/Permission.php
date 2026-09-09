@@ -33,4 +33,6 @@ enum Permission: string
     case MANAGE_ANAMNESIS = 'MANAGE_ANAMNESIS';
     case VIEW_GOALS = 'VIEW_GOALS';
     case MANAGE_GOALS = 'MANAGE_GOALS';
+    case VIEW_FOLLOW_UP = 'VIEW_FOLLOW_UP';
+    case MANAGE_FOLLOW_UP = 'MANAGE_FOLLOW_UP';
 }
