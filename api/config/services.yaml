@@ -77,6 +77,10 @@ when@test:
             public: true
             autowire: true
             autoconfigure: true
+        App\Application\Service\GoalService:
+            public: true
+            autowire: true
+            autoconfigure: true
 
 
 

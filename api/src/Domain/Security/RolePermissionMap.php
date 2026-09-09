@@ -38,6 +38,8 @@ final class RolePermissionMap
                 Permission::VIEW_ANALYTICS,
                 Permission::VIEW_ANAMNESIS,
                 Permission::MANAGE_ANAMNESIS,
+                Permission::VIEW_GOALS,
+                Permission::MANAGE_GOALS,
             ],
             TenantRole::ADMIN => [
                 Permission::MANAGE_TENANT,
@@ -61,6 +63,8 @@ final class RolePermissionMap
                 Permission::VIEW_ANALYTICS,
                 Permission::VIEW_ANAMNESIS,
                 Permission::MANAGE_ANAMNESIS,
+                Permission::VIEW_GOALS,
+                Permission::MANAGE_GOALS,
             ],
             TenantRole::MANAGER => [
                 Permission::VIEW_ALL_STUDENTS,
@@ -81,6 +85,8 @@ final class RolePermissionMap
                 Permission::VIEW_ANALYTICS,
                 Permission::VIEW_ANAMNESIS,
                 Permission::MANAGE_ANAMNESIS,
+                Permission::VIEW_GOALS,
+                Permission::MANAGE_GOALS,
             ],
             TenantRole::TRAINER => [
                 Permission::VIEW_ASSIGNED_STUDENTS,
@@ -100,6 +106,8 @@ final class RolePermissionMap
                 Permission::VIEW_ANALYTICS,
                 Permission::VIEW_ANAMNESIS,
                 Permission::MANAGE_ANAMNESIS,
+                Permission::VIEW_GOALS,
+                Permission::MANAGE_GOALS,
             ],
             TenantRole::ASSISTANT => [
                 Permission::VIEW_ASSIGNED_STUDENTS,
@@ -111,6 +119,7 @@ final class RolePermissionMap
                 Permission::VIEW_METRICS,
                 Permission::VIEW_ANALYTICS,
                 Permission::VIEW_ANAMNESIS,
+                Permission::VIEW_GOALS,
             ],
             TenantRole::FINANCE => [
                 Permission::MANAGE_FINANCES,
@@ -129,6 +138,7 @@ final class RolePermissionMap
                 Permission::VIEW_ANALYTICS,
                 Permission::VIEW_ANAMNESIS,
                 Permission::MANAGE_ANAMNESIS,
+                Permission::VIEW_GOALS,
             ],
         };
     }
