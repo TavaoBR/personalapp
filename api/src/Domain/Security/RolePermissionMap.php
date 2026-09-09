@@ -25,6 +25,10 @@ final class RolePermissionMap
                 Permission::VIEW_FINANCES,
                 Permission::VIEW_EXERCISES,
                 Permission::MANAGE_EXERCISES,
+                Permission::VIEW_WORKOUT_TEMPLATES,
+                Permission::MANAGE_WORKOUT_TEMPLATES,
+                Permission::VIEW_WORKOUT_PLANS,
+                Permission::MANAGE_WORKOUT_PLANS,
             ],
             TenantRole::ADMIN => [
                 Permission::MANAGE_TENANT,
@@ -35,6 +39,10 @@ final class RolePermissionMap
                 Permission::VIEW_FINANCES,
                 Permission::VIEW_EXERCISES,
                 Permission::MANAGE_EXERCISES,
+                Permission::VIEW_WORKOUT_TEMPLATES,
+                Permission::MANAGE_WORKOUT_TEMPLATES,
+                Permission::VIEW_WORKOUT_PLANS,
+                Permission::MANAGE_WORKOUT_PLANS,
             ],
             TenantRole::MANAGER => [
                 Permission::VIEW_ALL_STUDENTS,
@@ -42,16 +50,26 @@ final class RolePermissionMap
                 Permission::VIEW_FINANCES,
                 Permission::VIEW_EXERCISES,
                 Permission::MANAGE_EXERCISES,
+                Permission::VIEW_WORKOUT_TEMPLATES,
+                Permission::MANAGE_WORKOUT_TEMPLATES,
+                Permission::VIEW_WORKOUT_PLANS,
+                Permission::MANAGE_WORKOUT_PLANS,
             ],
             TenantRole::TRAINER => [
                 Permission::VIEW_ASSIGNED_STUDENTS,
                 Permission::MANAGE_ASSIGNED_STUDENTS,
                 Permission::VIEW_EXERCISES,
                 Permission::MANAGE_EXERCISES,
+                Permission::VIEW_WORKOUT_TEMPLATES,
+                Permission::MANAGE_WORKOUT_TEMPLATES,
+                Permission::VIEW_WORKOUT_PLANS,
+                Permission::MANAGE_WORKOUT_PLANS,
             ],
             TenantRole::ASSISTANT => [
                 Permission::VIEW_ASSIGNED_STUDENTS,
                 Permission::VIEW_EXERCISES,
+                Permission::VIEW_WORKOUT_TEMPLATES,
+                Permission::VIEW_WORKOUT_PLANS,
             ],
             TenantRole::FINANCE => [
                 Permission::MANAGE_FINANCES,
@@ -61,6 +79,7 @@ final class RolePermissionMap
                 Permission::VIEW_OWN_STUDENT_PROFILE,
                 Permission::EDIT_OWN_STUDENT_PROFILE,
                 Permission::VIEW_EXERCISES,
+                Permission::VIEW_WORKOUT_PLANS,
             ],
         };
     }

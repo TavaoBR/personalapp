@@ -53,4 +53,12 @@ when@test:
             public: true
             autowire: true
             autoconfigure: true
+        App\Application\Service\WorkoutTemplateService:
+            public: true
+            autowire: true
+            autoconfigure: true
+        App\Application\Service\StudentWorkoutPlanService:
+            public: true
+            autowire: true
+            autoconfigure: true
 
