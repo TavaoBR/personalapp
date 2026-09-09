@@ -89,6 +89,10 @@ when@test:
             public: true
             autowire: true
             autoconfigure: true
+        App\Application\Service\FinancialService:
+            public: true
+            autowire: true
+            autoconfigure: true
 
 
 
