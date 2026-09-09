@@ -73,6 +73,10 @@ when@test:
             public: true
             autowire: true
             autoconfigure: true
+        App\Application\Service\AnamnesisService:
+            public: true
+            autowire: true
+            autoconfigure: true
 
 
 

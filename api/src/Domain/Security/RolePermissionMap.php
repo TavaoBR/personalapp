@@ -36,6 +36,8 @@ final class RolePermissionMap
                 Permission::VIEW_METRICS,
                 Permission::MANAGE_METRICS,
                 Permission::VIEW_ANALYTICS,
+                Permission::VIEW_ANAMNESIS,
+                Permission::MANAGE_ANAMNESIS,
             ],
             TenantRole::ADMIN => [
                 Permission::MANAGE_TENANT,
@@ -57,6 +59,8 @@ final class RolePermissionMap
                 Permission::VIEW_METRICS,
                 Permission::MANAGE_METRICS,
                 Permission::VIEW_ANALYTICS,
+                Permission::VIEW_ANAMNESIS,
+                Permission::MANAGE_ANAMNESIS,
             ],
             TenantRole::MANAGER => [
                 Permission::VIEW_ALL_STUDENTS,
@@ -75,6 +79,8 @@ final class RolePermissionMap
                 Permission::VIEW_METRICS,
                 Permission::MANAGE_METRICS,
                 Permission::VIEW_ANALYTICS,
+                Permission::VIEW_ANAMNESIS,
+                Permission::MANAGE_ANAMNESIS,
             ],
             TenantRole::TRAINER => [
                 Permission::VIEW_ASSIGNED_STUDENTS,
@@ -92,6 +98,8 @@ final class RolePermissionMap
                 Permission::VIEW_METRICS,
                 Permission::MANAGE_METRICS,
                 Permission::VIEW_ANALYTICS,
+                Permission::VIEW_ANAMNESIS,
+                Permission::MANAGE_ANAMNESIS,
             ],
             TenantRole::ASSISTANT => [
                 Permission::VIEW_ASSIGNED_STUDENTS,
@@ -102,6 +110,7 @@ final class RolePermissionMap
                 Permission::VIEW_ASSESSMENTS,
                 Permission::VIEW_METRICS,
                 Permission::VIEW_ANALYTICS,
+                Permission::VIEW_ANAMNESIS,
             ],
             TenantRole::FINANCE => [
                 Permission::MANAGE_FINANCES,
@@ -118,6 +127,8 @@ final class RolePermissionMap
                 Permission::VIEW_METRICS,
                 Permission::MANAGE_METRICS,
                 Permission::VIEW_ANALYTICS,
+                Permission::VIEW_ANAMNESIS,
+                Permission::MANAGE_ANAMNESIS,
             ],
         };
     }
