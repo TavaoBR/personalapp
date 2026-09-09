@@ -21,9 +21,31 @@ services:
         arguments:
             $baseStoragePath: '%app.storage_dir%'
 
+    App\Application\Service\TokenService:
+        arguments:
+            $secret: '%env(APP_SECRET)%'
+            $accessTokenTtl: 900
+
+    App\Application\Service\TenantContext:
+        shared: true
+
 when@test:
     services:
         App\Application\Service\TenantIdentityService:
+            public: true
+            autowire: true
+            autoconfigure: true
+        App\Application\Service\TokenService:
+            public: true
+            autowire: true
+            autoconfigure: true
+            arguments:
+                $secret: '%env(APP_SECRET)%'
+                $accessTokenTtl: 900
+        App\Application\Service\TenantContext:
+            public: true
+            shared: true
+        App\Application\Service\TenantResolver:
             public: true
             autowire: true
             autoconfigure: true
