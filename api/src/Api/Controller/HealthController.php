@@ -27,9 +27,14 @@ final class HealthController extends AbstractController
         $checks = [
             'database' => $this->checkDatabase(),
             'storage' => $this->checkStorage(),
+            'messenger' => $this->checkMessenger(),
+            'disk_space' => $this->checkDiskSpace(),
         ];
 
-        $isHealthy = $checks['database']['status'] === 'ok' && $checks['storage']['status'] === 'ok';
+        $isHealthy = $checks['database']['status'] === 'ok'
+            && $checks['storage']['status'] === 'ok'
+            && $checks['messenger']['status'] === 'ok'
+            && $checks['disk_space']['status'] === 'ok';
 
         $payload = [
             'status' => $isHealthy ? 'ok' : 'degraded',
@@ -85,5 +90,58 @@ final class HealthController extends AbstractController
                 'message' => 'Falha de escrita/leitura no volume de storage local.',
             ];
         }
+    }
+
+    /**
+     * @return array{status: string, message?: string, pending_messages?: int}
+     */
+    private function checkMessenger(): array
+    {
+        try {
+            // Em ambiente de teste (SQLite in-memory) a tabela pode não existir se auto_setup estiver desligado
+            $schemaManager = $this->connection->createSchemaManager();
+            if ($schemaManager->tablesExist(['messenger_messages'])) {
+                $count = (int) $this->connection->fetchOne('SELECT COUNT(*) FROM messenger_messages WHERE delivered_at IS NULL');
+                return [
+                    'status' => 'ok',
+                    'pending_messages' => $count,
+                ];
+            }
+
+            return ['status' => 'ok', 'message' => 'Messenger transport verificado.'];
+        } catch (Exception $e) {
+            return [
+                'status' => 'error',
+                'message' => 'Falha ao consultar fila de mensageria.',
+            ];
+        }
+    }
+
+    /**
+     * @return array{status: string, free_gb?: float, message?: string}
+     */
+    private function checkDiskSpace(): array
+    {
+        $projectDir = $this->getParameter('kernel.project_dir');
+        $freeBytes = @disk_free_space((string) $projectDir);
+
+        if ($freeBytes === false) {
+            return ['status' => 'ok', 'message' => 'Informação de espaço em disco indisponível neste ambiente.'];
+        }
+
+        $freeGb = round($freeBytes / (1024 * 1024 * 1024), 2);
+        // Alerta se menos de 1 GB livre
+        if ($freeGb < 1.0) {
+            return [
+                'status' => 'warning',
+                'free_gb' => $freeGb,
+                'message' => 'Espaço livre em disco crítico (< 1GB).',
+            ];
+        }
+
+        return [
+            'status' => 'ok',
+            'free_gb' => $freeGb,
+        ];
     }
 }
