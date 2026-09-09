@@ -41,6 +41,14 @@ class TenantAuthorizationService
         }
     }
 
+    public function assertHasPermission(User|Permission $userOrPermission, ?Permission $permission = null): void
+    {
+        $perm = $permission ?? ($userOrPermission instanceof Permission ? $userOrPermission : null);
+        if ($perm !== null) {
+            $this->requirePermission($perm);
+        }
+    }
+
     /**
      * Avalia se o usuário autenticado pode acessar o perfil do aluno no tenant atual.
      * Retorna false se o aluno pertencer a outro tenant ou não estiver no escopo do usuário.
