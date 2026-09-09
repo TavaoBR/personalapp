@@ -6,7 +6,9 @@ namespace App\Infrastructure\Repository;
 
 use App\Domain\Entity\StudentProfile;
 use App\Domain\Entity\Tenant;
+use App\Domain\Entity\TrainerProfile;
 use App\Domain\Entity\User;
+use App\Domain\Enum\AssignmentStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -45,6 +47,23 @@ class StudentProfileRepository extends ServiceEntityRepository
             'tenant' => $tenant,
             'status' => $status,
         ]);
+    }
+
+    /**
+     * @return array<StudentProfile>
+     */
+    public function findAssignedToTrainer(Tenant $tenant, TrainerProfile $trainer): array
+    {
+        return $this->createQueryBuilder('s')
+            ->innerJoin('App\Domain\Entity\TrainerStudentAssignment', 'a', 'WITH', 'a.student = s')
+            ->where('s.tenant = :tenant')
+            ->andWhere('a.trainer = :trainer')
+            ->andWhere('a.status = :status')
+            ->setParameter('tenant', $tenant)
+            ->setParameter('trainer', $trainer)
+            ->setParameter('status', AssignmentStatus::ACTIVE)
+            ->getQuery()
+            ->getResult();
     }
 
     public function save(StudentProfile $studentProfile, bool $flush = true): void
