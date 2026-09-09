@@ -97,6 +97,15 @@ when@test:
             public: true
             autowire: true
             autoconfigure: true
+        App\Application\Service\PlatformAdminService:
+            public: true
+            autowire: true
+            autoconfigure: true
+        App\Infrastructure\Repository\PlatformAuditLogRepository:
+            public: true
+            autowire: true
+            autoconfigure: true
+
 
 
 

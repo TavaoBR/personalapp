@@ -33,8 +33,16 @@ class TenantResolver
                 throw new NotFoundHttpException('Tenant não encontrado.');
             }
 
+            if ($tenant->getStatus() === 'SUSPENDED' && !$user->isPlatformAdmin()) {
+                throw new AccessDeniedHttpException('Acesso negado: esta organização/tenant está suspensa.');
+            }
+
             $membership = $this->membershipRepository->findByUserAndTenant($user, $tenant);
             if ($membership === null || $membership->getStatus() !== MembershipStatus::ACTIVE) {
+                if ($user->isPlatformAdmin()) {
+                    $this->tenantContext->set($tenant, null);
+                    return $this->tenantContext;
+                }
                 throw new AccessDeniedHttpException('Acesso negado: você não possui vínculo ativo com este tenant.');
             }
 
@@ -45,7 +53,7 @@ class TenantResolver
         // Caso nenhum tenant específico tenha sido requisitado, utiliza o primeiro ativo
         $memberships = $this->membershipRepository->findByUser($user);
         foreach ($memberships as $m) {
-            if ($m->getStatus() === MembershipStatus::ACTIVE) {
+            if ($m->getStatus() === MembershipStatus::ACTIVE && ($m->getTenant()->getStatus() !== 'SUSPENDED' || $user->isPlatformAdmin())) {
                 $this->tenantContext->set($m->getTenant(), $m);
                 return $this->tenantContext;
             }
