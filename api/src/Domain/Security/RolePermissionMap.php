@@ -31,6 +31,10 @@ final class RolePermissionMap
                 Permission::MANAGE_WORKOUT_PLANS,
                 Permission::VIEW_WORKOUT_SESSIONS,
                 Permission::MANAGE_WORKOUT_SESSIONS,
+                Permission::VIEW_ASSESSMENTS,
+                Permission::MANAGE_ASSESSMENTS,
+                Permission::VIEW_METRICS,
+                Permission::MANAGE_METRICS,
             ],
             TenantRole::ADMIN => [
                 Permission::MANAGE_TENANT,
@@ -47,6 +51,10 @@ final class RolePermissionMap
                 Permission::MANAGE_WORKOUT_PLANS,
                 Permission::VIEW_WORKOUT_SESSIONS,
                 Permission::MANAGE_WORKOUT_SESSIONS,
+                Permission::VIEW_ASSESSMENTS,
+                Permission::MANAGE_ASSESSMENTS,
+                Permission::VIEW_METRICS,
+                Permission::MANAGE_METRICS,
             ],
             TenantRole::MANAGER => [
                 Permission::VIEW_ALL_STUDENTS,
@@ -60,6 +68,10 @@ final class RolePermissionMap
                 Permission::MANAGE_WORKOUT_PLANS,
                 Permission::VIEW_WORKOUT_SESSIONS,
                 Permission::MANAGE_WORKOUT_SESSIONS,
+                Permission::VIEW_ASSESSMENTS,
+                Permission::MANAGE_ASSESSMENTS,
+                Permission::VIEW_METRICS,
+                Permission::MANAGE_METRICS,
             ],
             TenantRole::TRAINER => [
                 Permission::VIEW_ASSIGNED_STUDENTS,
@@ -72,6 +84,10 @@ final class RolePermissionMap
                 Permission::MANAGE_WORKOUT_PLANS,
                 Permission::VIEW_WORKOUT_SESSIONS,
                 Permission::MANAGE_WORKOUT_SESSIONS,
+                Permission::VIEW_ASSESSMENTS,
+                Permission::MANAGE_ASSESSMENTS,
+                Permission::VIEW_METRICS,
+                Permission::MANAGE_METRICS,
             ],
             TenantRole::ASSISTANT => [
                 Permission::VIEW_ASSIGNED_STUDENTS,
@@ -79,6 +95,8 @@ final class RolePermissionMap
                 Permission::VIEW_WORKOUT_TEMPLATES,
                 Permission::VIEW_WORKOUT_PLANS,
                 Permission::VIEW_WORKOUT_SESSIONS,
+                Permission::VIEW_ASSESSMENTS,
+                Permission::VIEW_METRICS,
             ],
             TenantRole::FINANCE => [
                 Permission::MANAGE_FINANCES,
@@ -91,6 +109,9 @@ final class RolePermissionMap
                 Permission::VIEW_WORKOUT_PLANS,
                 Permission::VIEW_WORKOUT_SESSIONS,
                 Permission::MANAGE_WORKOUT_SESSIONS,
+                Permission::VIEW_ASSESSMENTS,
+                Permission::VIEW_METRICS,
+                Permission::MANAGE_METRICS,
             ],
         };
     }

@@ -65,5 +65,10 @@ when@test:
             public: true
             autowire: true
             autoconfigure: true
+        App\Application\Service\AssessmentService:
+            public: true
+            autowire: true
+            autoconfigure: true
+
 
 
