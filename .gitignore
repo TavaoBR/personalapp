@@ -1,0 +1,19 @@
+# Environment and secrets
+.env.local
+.env.*.local
+*.local
+
+# Dependencies
+vendor/
+node_modules/
+
+# Runtime and storage
+var/
+storage/
+.phpunit.cache/
+
+# OS and IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
