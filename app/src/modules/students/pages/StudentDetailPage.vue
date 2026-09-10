@@ -288,28 +288,132 @@
       </div>
 
       <!-- 3. Evolução -->
-      <div v-else-if="activeTab === 'evolucao'" class="p-8 rounded-2xl bg-slate-900/40 border border-slate-800 text-center">
-        <div class="w-12 h-12 mx-auto rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-xl mb-3">
-          📈
+      <div v-else-if="activeTab === 'evolucao'" class="space-y-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+              <span>📈</span> Evolução de Métricas
+            </h3>
+            <p class="text-xs text-slate-400">Acompanhamento temporal e comparativos de composição corporal.</p>
+          </div>
+          <button
+            @click="isRecordMetricModalOpen = true"
+            class="px-4 py-2 text-xs font-semibold text-white bg-purple-600 hover:bg-purple-500 rounded-xl shadow-lg shadow-purple-600/20 transition-all flex items-center gap-1.5"
+          >
+            <span>⚖️</span>
+            <span>Registrar Medida Rápida</span>
+          </button>
         </div>
-        <h3 class="text-lg font-semibold text-white">Evolução & Gráficos</h3>
-        <p class="text-sm text-slate-400 max-w-md mx-auto mt-1">
-          Acompanhamento comparativo de cargas máximas (1RM), volume semanal e medidas corporais.
-        </p>
+
+        <div v-if="loadingProgress" class="py-12 text-center text-xs text-slate-400">
+          Carregando dados de evolução...
+        </div>
+
+        <div v-else-if="progressData" class="space-y-6">
+          <div class="p-6 rounded-3xl bg-slate-900/60 border border-slate-800 space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="text-xs text-slate-400 font-medium">Peso Corporal Mais Recente</span>
+              <span 
+                v-if="progressData.delta !== null"
+                class="px-2.5 py-0.5 text-xs font-bold rounded-full border font-mono"
+                :class="(progressData.delta || 0) <= 0 
+                  ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
+                  : 'bg-amber-500/10 text-amber-400 border-amber-500/20'"
+              >
+                {{ (progressData.delta || 0) > 0 ? '+' : '' }}{{ progressData.delta }} {{ progressData.unit }} ({{ progressData.delta_percentage }}%)
+              </span>
+            </div>
+
+            <div class="flex items-baseline gap-2">
+              <span class="text-4xl font-black text-white font-mono tracking-tight">
+                {{ progressData.latest_value ?? '-' }}
+              </span>
+              <span class="text-base font-semibold text-purple-400">{{ progressData.unit }}</span>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2 pt-3 border-t border-slate-800/80 text-xs">
+              <div>
+                <span class="text-[10px] text-slate-500 block uppercase">Inicial</span>
+                <span class="font-bold text-slate-200 font-mono">{{ progressData.initial_value ?? '-' }} {{ progressData.unit }}</span>
+              </div>
+              <div>
+                <span class="text-[10px] text-slate-500 block uppercase">Mínimo</span>
+                <span class="font-bold text-slate-200 font-mono">{{ progressData.min_value ?? '-' }} {{ progressData.unit }}</span>
+              </div>
+              <div>
+                <span class="text-[10px] text-slate-500 block uppercase">Máximo</span>
+                <span class="font-bold text-slate-200 font-mono">{{ progressData.max_value ?? '-' }} {{ progressData.unit }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- 4. Avaliações -->
-      <div v-else-if="activeTab === 'avaliacoes'" class="p-8 rounded-2xl bg-slate-900/40 border border-slate-800 text-center">
-        <div class="w-12 h-12 mx-auto rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center text-xl mb-3">
-          📊
+      <div v-else-if="activeTab === 'avaliacoes'" class="space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+              <span>📊</span> Avaliações Físicas
+            </h3>
+            <p class="text-xs text-slate-400">Histórico de laudos antropométricos e bioimpedância.</p>
+          </div>
+
+          <button
+            @click="isCreateAssessmentModalOpen = true"
+            class="px-4 py-2 text-xs font-semibold text-white bg-purple-600 hover:bg-purple-500 rounded-xl transition-all"
+          >
+            + Iniciar Avaliação
+          </button>
         </div>
-        <h3 class="text-lg font-semibold text-white">Avaliações Físicas & Métricas</h3>
-        <p class="text-sm text-slate-400 max-w-md mx-auto mt-1 mb-4">
-          Protocolos de dobras cutâneas (Pollock), bioimpedância e fotos posturais comparativas.
-        </p>
-        <button class="px-5 py-2 text-xs font-semibold text-white bg-purple-600 hover:bg-purple-500 rounded-xl">
-          + Iniciar Avaliação
-        </button>
+
+        <div v-if="loadingAssessments" class="py-12 text-center text-xs text-slate-400">
+          Carregando avaliações...
+        </div>
+
+        <div v-else-if="assessments.length === 0" class="p-8 rounded-2xl bg-slate-900/40 border border-slate-800 text-center">
+          <div class="w-12 h-12 mx-auto rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center text-xl mb-3">
+            📊
+          </div>
+          <h4 class="text-base font-semibold text-white">Nenhuma avaliação realizada</h4>
+          <p class="text-xs text-slate-400 max-w-sm mx-auto mt-1 mb-4">
+            Registre a primeira avaliação física com peso, gordura e circunferências.
+          </p>
+          <button
+            @click="isCreateAssessmentModalOpen = true"
+            class="px-4 py-2 text-xs font-semibold text-white bg-purple-600 hover:bg-purple-500 rounded-xl"
+          >
+            Realizar Avaliação Agora
+          </button>
+        </div>
+
+        <div v-else class="space-y-3">
+          <div 
+            v-for="a in assessments" 
+            :key="a.id"
+            class="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-slate-700 transition-all flex items-center justify-between"
+          >
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-white text-sm">📅 {{ formatDate(a.date) }}</span>
+                <span class="px-2 py-0.5 text-[10px] rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                  {{ a.metrics_count }} métricas coletadas
+                </span>
+              </div>
+              <p v-if="a.notes" class="text-xs text-slate-400 italic">"{{ a.notes }}"</p>
+              <span v-if="a.trainer_name" class="text-[11px] text-slate-500 block">
+                Avaliador: {{ a.trainer_name }}
+              </span>
+            </div>
+
+            <button
+              @click="openAssessmentDetail(a.id)"
+              class="px-3.5 py-1.5 text-xs font-semibold text-purple-400 hover:text-purple-300 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 rounded-xl"
+            >
+              Ver Detalhes →
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- 5. Anamnese -->
@@ -387,6 +491,28 @@
         @close="isAssignModalOpen = false"
         @assigned="loadStudent"
       />
+
+      <!-- Modais de Avaliação e Métricas -->
+      <CreateAssessmentModal
+        :is-open="isCreateAssessmentModalOpen"
+        :student-id="student.id"
+        :student-name="student.user.name"
+        @close="isCreateAssessmentModalOpen = false"
+        @created="loadAssessments"
+      />
+
+      <RecordMetricModal
+        :is-open="isRecordMetricModalOpen"
+        :student-id="student.id"
+        @close="isRecordMetricModalOpen = false"
+        @recorded="loadProgressData"
+      />
+
+      <AssessmentDetailModal
+        :is-open="isAssessmentDetailModalOpen"
+        :assessment="selectedAssessmentDetail"
+        @close="isAssessmentDetailModalOpen = false"
+      />
     </div>
   </div>
 </template>
@@ -398,8 +524,13 @@ import { studentService } from '../services/studentService'
 import type { StudentDetail } from '../types'
 import { workoutPlanService } from '@/modules/workouts/services/workoutPlanService'
 import type { StudentWorkoutPlanSummary } from '@/modules/workouts/types'
+import { assessmentService } from '@/modules/assessments/services/assessmentService'
+import type { Assessment, AssessmentDetail, StudentProgressData } from '@/modules/assessments/types'
 import { useAuthStore } from '@/stores/auth'
 import AssignTrainerModal from '../components/AssignTrainerModal.vue'
+import CreateAssessmentModal from '@/modules/assessments/components/CreateAssessmentModal.vue'
+import RecordMetricModal from '@/modules/assessments/components/RecordMetricModal.vue'
+import AssessmentDetailModal from '@/modules/assessments/components/AssessmentDetailModal.vue'
 
 const route = useRoute()
 const authStore = useAuthStore()
@@ -412,6 +543,16 @@ const activeTab = ref('visao-geral')
 
 const studentPlans = ref<StudentWorkoutPlanSummary[]>([])
 const loadingPlans = ref(false)
+
+const assessments = ref<Assessment[]>([])
+const loadingAssessments = ref(false)
+const isCreateAssessmentModalOpen = ref(false)
+const isAssessmentDetailModalOpen = ref(false)
+const selectedAssessmentDetail = ref<AssessmentDetail | null>(null)
+
+const progressData = ref<StudentProgressData | null>(null)
+const loadingProgress = ref(false)
+const isRecordMetricModalOpen = ref(false)
 
 const isAssignModalOpen = ref(false)
 const isEditingNotes = ref(false)
@@ -460,9 +601,44 @@ async function loadPlans() {
   }
 }
 
+async function loadAssessments() {
+  loadingAssessments.value = true
+  try {
+    assessments.value = await assessmentService.listByStudent(studentId.value)
+  } catch (err) {
+    console.error('Erro ao carregar avaliações:', err)
+  } finally {
+    loadingAssessments.value = false
+  }
+}
+
+async function loadProgressData() {
+  loadingProgress.value = true
+  try {
+    progressData.value = await assessmentService.getProgress(studentId.value)
+  } catch (err) {
+    console.error('Erro ao carregar métricas de evolução:', err)
+  } finally {
+    loadingProgress.value = false
+  }
+}
+
+async function openAssessmentDetail(id: string) {
+  try {
+    selectedAssessmentDetail.value = await assessmentService.getById(id)
+    isAssessmentDetailModalOpen.value = true
+  } catch (err) {
+    console.error('Erro ao abrir detalhes da avaliação:', err)
+  }
+}
+
 watch(activeTab, (newTab) => {
   if (newTab === 'treinos') {
     loadPlans()
+  } else if (newTab === 'avaliacoes') {
+    loadAssessments()
+  } else if (newTab === 'evolucao') {
+    loadProgressData()
   }
 })
 

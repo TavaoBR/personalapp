@@ -151,7 +151,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/portal/progress',
     name: 'student-progress',
-    component: () => import('@/modules/student-portal/pages/StudentHomePage.vue'),
+    component: () => import('@/modules/student-portal/pages/StudentProgressPage.vue'),
     meta: { requiresAuth: true, roles: ['STUDENT'] },
   },
 
