@@ -615,14 +615,160 @@
       </div>
 
       <!-- 7. Acompanhamento -->
-      <div v-else-if="activeTab === 'acompanhamento'" class="p-8 rounded-2xl bg-slate-900/40 border border-slate-800 text-center">
-        <div class="w-12 h-12 mx-auto rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center text-xl mb-3">
-          📅
+      <div v-else-if="activeTab === 'acompanhamento'" class="space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+              <span>📅</span> Acompanhamento & Rotina Semanal
+            </h3>
+            <p class="text-xs text-slate-400">Feedback de esforço, sono, dores musculares e planos de tarefas.</p>
+          </div>
+
+          <div class="flex items-center gap-2 self-start">
+            <button
+              @click="isNewCheckInModalOpen = true"
+              class="px-3.5 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 rounded-xl shadow-lg shadow-blue-600/20 transition-all font-display flex items-center gap-1.5"
+            >
+              <span>➕</span>
+              <span>Novo Check-in</span>
+            </button>
+            <button
+              @click="isPrescribePlanModalOpen = true"
+              class="px-3.5 py-2 text-xs font-semibold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-xl transition-all flex items-center gap-1.5"
+            >
+              <span>📋</span>
+              <span>Prescrever Plano</span>
+            </button>
+          </div>
         </div>
-        <h3 class="text-lg font-semibold text-white">Acompanhamento & Check-ins</h3>
-        <p class="text-sm text-slate-400 max-w-md mx-auto mt-1">
-          Feedback semanal do aluno, percepção de esforço, dores musculares e agenda de revisões.
-        </p>
+
+        <div v-if="loadingFollowUp" class="py-12 text-center text-xs text-slate-400">
+          Carregando acompanhamento e check-ins...
+        </div>
+
+        <div v-else class="space-y-6">
+          <!-- 7.1 Planos de Acompanhamento (Cronogramas) -->
+          <div v-if="followUpPlans.length > 0" class="space-y-3">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">
+              Planos de Tarefas & Checkpoints Ativos ({{ followUpPlans.length }})
+            </h4>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div 
+                v-for="p in followUpPlans" 
+                :key="p.id"
+                class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-2.5"
+              >
+                <div class="flex items-center justify-between">
+                  <h5 class="text-xs font-bold text-white">{{ p.title }}</h5>
+                  <span class="text-[10px] font-mono text-blue-400 font-bold">
+                    {{ p.completed_tasks_count }}/{{ p.tasks_count }} tarefas
+                  </span>
+                </div>
+
+                <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                  <div 
+                    class="bg-blue-500 h-full rounded-full transition-all duration-500"
+                    :style="{ width: `${p.progress_percentage}%` }"
+                  ></div>
+                </div>
+
+                <div class="pt-2 flex items-center justify-between text-xs">
+                  <span class="text-[11px] text-slate-500">Início: {{ formatDate(p.start_date) }}</span>
+                  <button
+                    @click="openPlanDetail(p.id)"
+                    class="text-xs font-semibold text-blue-400 hover:text-blue-300"
+                  >
+                    Ver Tarefas →
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 7.2 Check-ins Periódicos -->
+          <div class="space-y-3">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">
+              Histórico de Check-ins ({{ checkIns.length }})
+            </h4>
+
+            <div v-if="checkIns.length === 0" class="p-8 rounded-2xl bg-slate-900/40 border border-slate-800 text-center">
+              <div class="w-12 h-12 mx-auto rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center text-xl mb-3">
+                📅
+              </div>
+              <h4 class="text-base font-semibold text-white">Nenhum check-in registrado</h4>
+              <p class="text-xs text-slate-400 max-w-sm mx-auto mt-1 mb-4">
+                Registre os relatos de sono, energia e dores musculares para acompanhamento próximo do aluno.
+              </p>
+              <button
+                @click="isNewCheckInModalOpen = true"
+                class="px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 rounded-xl font-display shadow-lg shadow-blue-600/20"
+              >
+                Registrar Primeiro Check-in
+              </button>
+            </div>
+
+            <div v-else class="space-y-3">
+              <div 
+                v-for="c in checkIns" 
+                :key="c.id"
+                class="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-3"
+              >
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm font-bold text-white">📅 {{ formatDate(c.check_in_date) }}</span>
+                    <span 
+                      class="px-2 py-0.5 text-[10px] rounded-full border font-semibold"
+                      :class="c.trainer_feedback 
+                        ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
+                        : 'bg-amber-500/10 text-amber-400 border-amber-500/20'"
+                    >
+                      {{ c.trainer_feedback ? 'Respondido pelo Treinador' : 'Aguardando Feedback' }}
+                    </span>
+                  </div>
+
+                  <button
+                    @click="openFeedback(c)"
+                    class="px-3 py-1 text-xs font-semibold text-blue-400 hover:text-blue-300 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 rounded-xl transition-all"
+                  >
+                    {{ c.trainer_feedback ? 'Editar Parecer' : '💬 Dar Parecer' }}
+                  </button>
+                </div>
+
+                <!-- 4 Metrics Chips -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                  <div class="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800 flex items-center justify-between">
+                    <span class="text-slate-400">⚡ Energia</span>
+                    <span class="font-bold text-amber-400 font-mono">{{ c.energy_level ?? '-' }}/5</span>
+                  </div>
+                  <div class="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800 flex items-center justify-between">
+                    <span class="text-slate-400">😴 Sono</span>
+                    <span class="font-bold text-indigo-400 font-mono">{{ c.sleep_quality ?? '-' }}/5</span>
+                  </div>
+                  <div class="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800 flex items-center justify-between">
+                    <span class="text-slate-400">🔥 Dor Muscular</span>
+                    <span class="font-bold text-rose-400 font-mono">{{ c.soreness_level ?? '-' }}/5</span>
+                  </div>
+                  <div class="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800 flex items-center justify-between">
+                    <span class="text-slate-400">🥗 Dieta</span>
+                    <span class="font-bold text-emerald-400 font-mono">{{ c.diet_adherence ?? '-' }}/5</span>
+                  </div>
+                </div>
+
+                <!-- Aluno Notes -->
+                <p v-if="c.notes" class="text-xs text-slate-300 italic p-3 rounded-xl bg-slate-950/50 border border-slate-800/60">
+                  "{{ c.notes }}"
+                </p>
+
+                <!-- Feedback Treinador -->
+                <div v-if="c.trainer_feedback" class="p-3 rounded-xl bg-blue-500/5 border border-blue-500/20 text-xs space-y-1">
+                  <span class="text-[10px] uppercase font-bold text-blue-400 block">Orientação do Treinador:</span>
+                  <p class="text-slate-200">{{ c.trainer_feedback }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- 8. Financeiro -->
@@ -727,6 +873,37 @@
         @close="isGoalDetailModalOpen = false"
         @updated="loadGoals"
       />
+
+      <!-- Modais de Acompanhamento & Check-in -->
+      <NewCheckInModal
+        :is-open="isNewCheckInModalOpen"
+        :student-id="student.id"
+        :student-name="student.user.name"
+        @close="isNewCheckInModalOpen = false"
+        @created="loadFollowUpData"
+      />
+
+      <CheckInFeedbackModal
+        :is-open="isFeedbackModalOpen"
+        :check-in="selectedCheckInForFeedback"
+        @close="isFeedbackModalOpen = false"
+        @saved="loadFollowUpData"
+      />
+
+      <PrescribePlanModal
+        :is-open="isPrescribePlanModalOpen"
+        :student-id="student.id"
+        :student-name="student.user.name"
+        @close="isPrescribePlanModalOpen = false"
+        @prescribed="loadFollowUpData"
+      />
+
+      <FollowUpPlanDetailModal
+        :is-open="isPlanDetailModalOpen"
+        :plan="selectedPlanDetail"
+        @close="isPlanDetailModalOpen = false"
+        @updated="loadFollowUpData"
+      />
     </div>
   </div>
 </template>
@@ -758,6 +935,12 @@ import type { StudentGoalSummary, StudentGoalDetail } from '@/modules/goals/type
 import CreateGoalModal from '@/modules/goals/components/CreateGoalModal.vue'
 import RecordGoalProgressModal from '@/modules/goals/components/RecordGoalProgressModal.vue'
 import GoalDetailModal from '@/modules/goals/components/GoalDetailModal.vue'
+import { followUpService } from '@/modules/follow-up/services/followUpService'
+import type { StudentCheckIn, FollowUpPlanSummary, FollowUpPlanDetail } from '@/modules/follow-up/types'
+import NewCheckInModal from '@/modules/follow-up/components/NewCheckInModal.vue'
+import CheckInFeedbackModal from '@/modules/follow-up/components/CheckInFeedbackModal.vue'
+import PrescribePlanModal from '@/modules/follow-up/components/PrescribePlanModal.vue'
+import FollowUpPlanDetailModal from '@/modules/follow-up/components/FollowUpPlanDetailModal.vue'
 
 const route = useRoute()
 const authStore = useAuthStore()
@@ -800,6 +983,16 @@ const isRecordGoalProgressModalOpen = ref(false)
 const isGoalDetailModalOpen = ref(false)
 const selectedGoalForProgress = ref<StudentGoalSummary | null>(null)
 const selectedGoalDetail = ref<StudentGoalDetail | null>(null)
+
+const checkIns = ref<StudentCheckIn[]>([])
+const followUpPlans = ref<FollowUpPlanSummary[]>([])
+const loadingFollowUp = ref(false)
+const isNewCheckInModalOpen = ref(false)
+const isFeedbackModalOpen = ref(false)
+const selectedCheckInForFeedback = ref<StudentCheckIn | null>(null)
+const isPrescribePlanModalOpen = ref(false)
+const isPlanDetailModalOpen = ref(false)
+const selectedPlanDetail = ref<FollowUpPlanDetail | null>(null)
 
 const isAssignModalOpen = ref(false)
 const isEditingNotes = ref(false)
@@ -958,6 +1151,36 @@ async function openGoalDetail(id: string) {
   }
 }
 
+async function loadFollowUpData() {
+  loadingFollowUp.value = true
+  try {
+    const [fetchedCheckIns, fetchedPlans] = await Promise.all([
+      followUpService.listStudentCheckIns(studentId.value),
+      followUpService.listStudentPlans(studentId.value)
+    ])
+    checkIns.value = fetchedCheckIns
+    followUpPlans.value = fetchedPlans
+  } catch (err) {
+    console.error('Erro ao carregar follow-up do aluno:', err)
+  } finally {
+    loadingFollowUp.value = false
+  }
+}
+
+function openFeedback(c: StudentCheckIn) {
+  selectedCheckInForFeedback.value = c
+  isFeedbackModalOpen.value = true
+}
+
+async function openPlanDetail(id: string) {
+  try {
+    selectedPlanDetail.value = await followUpService.getPlanById(id)
+    isPlanDetailModalOpen.value = true
+  } catch (err) {
+    console.error('Erro ao carregar detalhes do plano:', err)
+  }
+}
+
 watch(activeTab, (newTab) => {
   if (newTab === 'treinos') {
     loadPlans()
@@ -971,6 +1194,8 @@ watch(activeTab, (newTab) => {
     loadAnamneses()
   } else if (newTab === 'metas') {
     loadGoals()
+  } else if (newTab === 'acompanhamento') {
+    loadFollowUpData()
   }
 })
 

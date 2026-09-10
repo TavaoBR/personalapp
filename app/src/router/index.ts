@@ -94,7 +94,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/follow-up',
     name: 'follow-up',
-    component: () => import('@/modules/dashboard/pages/DashboardPage.vue'),
+    component: () => import('@/modules/follow-up/pages/FollowUpPage.vue'),
     meta: { requiresAuth: true, roles: ['OWNER', 'ADMIN', 'TRAINER'] },
   },
   {
