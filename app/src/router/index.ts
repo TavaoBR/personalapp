@@ -52,7 +52,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/exercises',
     name: 'exercises',
-    component: () => import('@/modules/dashboard/pages/DashboardPage.vue'),
+    component: () => import('@/modules/exercises/pages/ExerciseListPage.vue'),
     meta: { requiresAuth: true, roles: ['OWNER', 'ADMIN', 'TRAINER'] },
   },
   {
