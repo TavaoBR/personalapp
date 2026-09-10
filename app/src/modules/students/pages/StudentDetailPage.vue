@@ -500,14 +500,118 @@
       </div>
 
       <!-- 6. Metas -->
-      <div v-else-if="activeTab === 'metas'" class="p-8 rounded-2xl bg-slate-900/40 border border-slate-800 text-center">
-        <div class="w-12 h-12 mx-auto rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center text-xl mb-3">
-          🎯
+      <div v-else-if="activeTab === 'metas'" class="space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+              <span>🎯</span> Metas & Desafios Corporais
+            </h3>
+            <p class="text-xs text-slate-400">Objetivos de peso, percentual de gordura e cargas máximas.</p>
+          </div>
+
+          <button
+            @click="isCreateGoalModalOpen = true"
+            class="px-4 py-2 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-500 rounded-xl shadow-lg shadow-rose-600/20 transition-all font-display"
+          >
+            + Nova Meta
+          </button>
         </div>
-        <h3 class="text-lg font-semibold text-white">Metas & Desafios</h3>
-        <p class="text-sm text-slate-400 max-w-md mx-auto mt-1">
-          Metas de composição corporal, adesão semanal e marcos temporais.
-        </p>
+
+        <div v-if="loadingGoals" class="py-12 text-center text-xs text-slate-400">
+          Carregando metas do aluno...
+        </div>
+
+        <div v-else-if="goals.length === 0" class="p-8 rounded-2xl bg-slate-900/40 border border-slate-800 text-center">
+          <div class="w-12 h-12 mx-auto rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center text-xl mb-3">
+            🎯
+          </div>
+          <h4 class="text-base font-semibold text-white">Nenhuma meta estabelecida</h4>
+          <p class="text-xs text-slate-400 max-w-sm mx-auto mt-1 mb-4">
+            Defina metas quantitativas para manter a motivação e medir resultados ao longo do tempo.
+          </p>
+          <button
+            @click="isCreateGoalModalOpen = true"
+            class="px-4 py-2 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-500 rounded-xl font-display shadow-lg shadow-rose-600/20"
+          >
+            Definir Primeira Meta
+          </button>
+        </div>
+
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div 
+            v-for="g in goals" 
+            :key="g.id"
+            class="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between space-y-4 group"
+          >
+            <div class="space-y-2.5">
+              <div class="flex items-start justify-between gap-2">
+                <h4 class="text-sm font-bold text-white group-hover:text-rose-300 transition-colors">
+                  {{ g.title }}
+                </h4>
+                <span 
+                  class="px-2 py-0.5 text-[10px] font-bold rounded-full border shrink-0"
+                  :class="g.status === 'COMPLETED' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : g.status === 'ABANDONED' ? 'bg-slate-500/10 text-slate-400 border-slate-500/20' : 'bg-rose-500/10 text-rose-400 border-rose-500/20'"
+                >
+                  {{ g.status === 'COMPLETED' ? 'Concluída' : g.status === 'ABANDONED' ? 'Cancelada' : 'Em Andamento' }}
+                </span>
+              </div>
+
+              <!-- Progress Bar -->
+              <div class="space-y-1">
+                <div class="flex items-center justify-between text-[11px]">
+                  <span class="text-slate-400">Progresso</span>
+                  <span class="font-bold text-rose-400 font-mono">{{ g.progress_percentage }}%</span>
+                </div>
+                <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                  <div 
+                    class="h-full rounded-full transition-all duration-500 bg-gradient-to-r from-rose-500 to-amber-400"
+                    :style="{ width: `${Math.min(100, Math.max(0, g.progress_percentage))}%` }"
+                  ></div>
+                </div>
+              </div>
+
+              <!-- 3 Values -->
+              <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800/80 text-center text-xs">
+                <div>
+                  <span class="text-[10px] text-slate-500 block uppercase">Inicial</span>
+                  <span class="font-bold text-slate-300 font-mono">{{ g.initial_value ?? '-' }} {{ g.unit }}</span>
+                </div>
+                <div>
+                  <span class="text-[10px] text-slate-500 block uppercase">Atual</span>
+                  <span class="font-bold text-rose-400 font-mono">{{ g.current_value ?? g.initial_value ?? '-' }} {{ g.unit }}</span>
+                </div>
+                <div>
+                  <span class="text-[10px] text-slate-500 block uppercase">Alvo</span>
+                  <span class="font-bold text-emerald-400 font-mono">{{ g.target_value ?? '-' }} {{ g.unit }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Actions Footer -->
+            <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
+              <span v-if="g.target_date" class="text-slate-500 text-[11px]">
+                🎯 Prazo: {{ formatDate(g.target_date) }}
+              </span>
+              <span v-else class="text-slate-500 text-[11px]">Sem prazo limite</span>
+
+              <div class="flex items-center gap-2">
+                <button
+                  v-if="g.status === 'IN_PROGRESS'"
+                  @click="openRecordProgress(g)"
+                  class="px-2.5 py-1 text-xs font-semibold text-rose-300 hover:text-white bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 rounded-lg transition-all"
+                >
+                  + Medição
+                </button>
+                <button
+                  @click="openGoalDetail(g.id)"
+                  class="px-2.5 py-1 text-xs font-semibold text-slate-400 hover:text-white rounded-lg transition-all"
+                >
+                  Ver →
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- 7. Acompanhamento -->
@@ -600,6 +704,29 @@
         :anamnesis="selectedAnamnesisDetail"
         @close="isAnamnesisDetailModalOpen = false"
       />
+
+      <!-- Modais de Metas -->
+      <CreateGoalModal
+        :is-open="isCreateGoalModalOpen"
+        :student-id="student.id"
+        :student-name="student.user.name"
+        @close="isCreateGoalModalOpen = false"
+        @created="loadGoals"
+      />
+
+      <RecordGoalProgressModal
+        :is-open="isRecordGoalProgressModalOpen"
+        :goal="selectedGoalForProgress"
+        @close="isRecordGoalProgressModalOpen = false"
+        @recorded="loadGoals"
+      />
+
+      <GoalDetailModal
+        :is-open="isGoalDetailModalOpen"
+        :goal="selectedGoalDetail"
+        @close="isGoalDetailModalOpen = false"
+        @updated="loadGoals"
+      />
     </div>
   </div>
 </template>
@@ -626,6 +753,11 @@ import { anamnesisService } from '@/modules/anamnesis/services/anamnesisService'
 import type { StudentAnamnesisSummary, StudentAnamnesisDetail } from '@/modules/anamnesis/types'
 import FillAnamnesisModal from '@/modules/anamnesis/components/FillAnamnesisModal.vue'
 import AnamnesisDetailModal from '@/modules/anamnesis/components/AnamnesisDetailModal.vue'
+import { goalService } from '@/modules/goals/services/goalService'
+import type { StudentGoalSummary, StudentGoalDetail } from '@/modules/goals/types'
+import CreateGoalModal from '@/modules/goals/components/CreateGoalModal.vue'
+import RecordGoalProgressModal from '@/modules/goals/components/RecordGoalProgressModal.vue'
+import GoalDetailModal from '@/modules/goals/components/GoalDetailModal.vue'
 
 const route = useRoute()
 const authStore = useAuthStore()
@@ -660,6 +792,14 @@ const loadingAnamneses = ref(false)
 const isFillAnamnesisModalOpen = ref(false)
 const isAnamnesisDetailModalOpen = ref(false)
 const selectedAnamnesisDetail = ref<StudentAnamnesisDetail | null>(null)
+
+const goals = ref<StudentGoalSummary[]>([])
+const loadingGoals = ref(false)
+const isCreateGoalModalOpen = ref(false)
+const isRecordGoalProgressModalOpen = ref(false)
+const isGoalDetailModalOpen = ref(false)
+const selectedGoalForProgress = ref<StudentGoalSummary | null>(null)
+const selectedGoalDetail = ref<StudentGoalDetail | null>(null)
 
 const isAssignModalOpen = ref(false)
 const isEditingNotes = ref(false)
@@ -793,6 +933,31 @@ async function openAnamnesisDetail(id: string) {
   }
 }
 
+async function loadGoals() {
+  loadingGoals.value = true
+  try {
+    goals.value = await goalService.listByStudent(studentId.value)
+  } catch (err) {
+    console.error('Erro ao carregar metas do aluno:', err)
+  } finally {
+    loadingGoals.value = false
+  }
+}
+
+function openRecordProgress(goal: StudentGoalSummary) {
+  selectedGoalForProgress.value = goal
+  isRecordGoalProgressModalOpen.value = true
+}
+
+async function openGoalDetail(id: string) {
+  try {
+    selectedGoalDetail.value = await goalService.getById(id)
+    isGoalDetailModalOpen.value = true
+  } catch (err) {
+    console.error('Erro ao abrir detalhes da meta:', err)
+  }
+}
+
 watch(activeTab, (newTab) => {
   if (newTab === 'treinos') {
     loadPlans()
@@ -804,6 +969,8 @@ watch(activeTab, (newTab) => {
     loadStudentPRs()
   } else if (newTab === 'anamnese') {
     loadAnamneses()
+  } else if (newTab === 'metas') {
+    loadGoals()
   }
 })
 

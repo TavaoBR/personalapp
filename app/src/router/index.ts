@@ -88,7 +88,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/goals',
     name: 'goals',
-    component: () => import('@/modules/dashboard/pages/DashboardPage.vue'),
+    component: () => import('@/modules/goals/pages/GoalOverviewPage.vue'),
     meta: { requiresAuth: true, roles: ['OWNER', 'ADMIN', 'TRAINER'] },
   },
   {
