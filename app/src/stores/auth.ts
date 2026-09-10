@@ -18,6 +18,20 @@ export const useAuthStore = defineStore('auth', () => {
     return memberships.value.find((m) => m.tenantId === activeTenantId.value) || null;
   });
 
+  const activeRole = computed(() => activeMembership.value?.role || null);
+  const activeTenant = computed(() => activeMembership.value ? {
+    id: activeMembership.value.tenantId,
+    name: activeMembership.value.tenantName,
+    type: activeMembership.value.tenantType,
+  } : null);
+
+  const availableTenants = computed(() => memberships.value.map((m) => ({
+    id: m.tenantId,
+    name: m.tenantName,
+    type: m.tenantType,
+    role: m.role,
+  })));
+
   const isStudent = computed(() => activeMembership.value?.role === 'STUDENT');
   const isTrainerOrOwner = computed(() => ['OWNER', 'ADMIN', 'TRAINER'].includes(activeMembership.value?.role || ''));
 
@@ -149,6 +163,9 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated,
     isPlatformAdmin,
     activeMembership,
+    activeRole,
+    activeTenant,
+    availableTenants,
     isStudent,
     isTrainerOrOwner,
     login,

@@ -33,6 +33,7 @@ const isTenantMenuOpen = ref(false);
 const navigationItems = [
   { name: 'Dashboard', path: '/dashboard', icon: Home },
   { name: 'Alunos', path: '/students', icon: Users },
+  { name: 'Treinadores', path: '/trainers', icon: Users },
   { name: 'Fichas & Treinos', path: '/workouts', icon: Dumbbell },
   { name: 'Exercícios', path: '/exercises', icon: Activity },
   { name: 'Avaliações', path: '/assessments', icon: BarChart3 },

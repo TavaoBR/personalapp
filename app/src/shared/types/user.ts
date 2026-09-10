@@ -1,6 +1,6 @@
 export type UserStatus = 'ACTIVE' | 'INACTIVE' | 'BLOCKED';
 
-export type TenantRole = 'OWNER' | 'ADMIN' | 'TRAINER' | 'STUDENT';
+export type TenantRole = 'OWNER' | 'ADMIN' | 'MANAGER' | 'TRAINER' | 'ASSISTANT' | 'FINANCE' | 'STUDENT';
 
 export type MembershipStatus = 'ACTIVE' | 'INACTIVE' | 'INVITED';
 

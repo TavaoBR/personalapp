@@ -12,6 +12,12 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/modules/auth/pages/LoginPage.vue'),
     meta: { guestOnly: true },
   },
+  {
+    path: '/select-tenant',
+    name: 'select-tenant',
+    component: () => import('@/modules/tenants/pages/SelectTenantPage.vue'),
+    meta: { requiresAuth: true },
+  },
   // Rotas do Personal / Assessoria
   {
     path: '/dashboard',
@@ -22,13 +28,25 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/students',
     name: 'students',
-    component: () => import('@/modules/dashboard/pages/DashboardPage.vue'), // placeholder evolutivo
+    component: () => import('@/modules/students/pages/StudentListPage.vue'),
+    meta: { requiresAuth: true, roles: ['OWNER', 'ADMIN', 'TRAINER'] },
+  },
+  {
+    path: '/students/:id',
+    name: 'student-detail',
+    component: () => import('@/modules/students/pages/StudentDetailPage.vue'),
+    meta: { requiresAuth: true, roles: ['OWNER', 'ADMIN', 'TRAINER'] },
+  },
+  {
+    path: '/trainers',
+    name: 'trainers',
+    component: () => import('@/modules/trainers/pages/TrainerListPage.vue'),
     meta: { requiresAuth: true, roles: ['OWNER', 'ADMIN', 'TRAINER'] },
   },
   {
     path: '/workouts',
     name: 'workouts',
-    component: () => import('@/modules/dashboard/pages/DashboardPage.vue'), // placeholder evolutivo
+    component: () => import('@/modules/dashboard/pages/DashboardPage.vue'),
     meta: { requiresAuth: true, roles: ['OWNER', 'ADMIN', 'TRAINER'] },
   },
   {
@@ -74,10 +92,15 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true, roles: ['OWNER', 'ADMIN'] },
   },
   {
+    path: '/settings/tenant',
+    name: 'tenant-settings',
+    component: () => import('@/modules/tenants/pages/TenantSettingsPage.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
     path: '/settings',
     name: 'settings',
-    component: () => import('@/modules/dashboard/pages/DashboardPage.vue'),
-    meta: { requiresAuth: true },
+    redirect: '/settings/tenant',
   },
 
   // Rotas do Aluno
