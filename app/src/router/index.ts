@@ -46,7 +46,19 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/workouts',
     name: 'workouts',
-    component: () => import('@/modules/dashboard/pages/DashboardPage.vue'),
+    component: () => import('@/modules/workouts/pages/TemplateListPage.vue'),
+    meta: { requiresAuth: true, roles: ['OWNER', 'ADMIN', 'TRAINER'] },
+  },
+  {
+    path: '/workouts/builder',
+    name: 'workout-builder',
+    component: () => import('@/modules/workouts/pages/TemplateBuilderPage.vue'),
+    meta: { requiresAuth: true, roles: ['OWNER', 'ADMIN', 'TRAINER'] },
+  },
+  {
+    path: '/workouts/plans/:id',
+    name: 'workout-plan-detail',
+    component: () => import('@/modules/workouts/pages/StudentWorkoutPlanDetailPage.vue'),
     meta: { requiresAuth: true, roles: ['OWNER', 'ADMIN', 'TRAINER'] },
   },
   {

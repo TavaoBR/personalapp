@@ -210,20 +210,81 @@
       </div>
 
       <!-- 2. Treinos -->
-      <div v-else-if="activeTab === 'treinos'" class="p-8 rounded-2xl bg-slate-900/40 border border-slate-800 text-center">
-        <div class="w-12 h-12 mx-auto rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xl mb-3">
-          🏋️
+      <div v-else-if="activeTab === 'treinos'" class="space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+              <span>🏋️</span> Fichas & Planos de Treino
+            </h3>
+            <p class="text-xs text-slate-400">Fichas ativas e histórico de periodização prescrito para este aluno.</p>
+          </div>
+
+          <RouterLink
+            to="/workouts/builder"
+            class="px-4 py-2 text-xs font-semibold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-xl transition-all"
+          >
+            + Montar Novo Treino
+          </RouterLink>
         </div>
-        <h3 class="text-lg font-semibold text-white">Fichas & Programas de Treino</h3>
-        <p class="text-sm text-slate-400 max-w-md mx-auto mt-1 mb-4">
-          Fichas ativas, histórico de sessões executadas e construtor com periodização do aluno.
-        </p>
-        <RouterLink 
-          to="/workouts/builder" 
-          class="px-5 py-2 text-xs font-semibold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-xl inline-block"
-        >
-          Criar Nova Ficha de Treino
-        </RouterLink>
+
+        <div v-if="loadingPlans" class="py-12 text-center text-xs text-slate-400">
+          Carregando fichas de treino...
+        </div>
+
+        <div v-else-if="studentPlans.length === 0" class="p-8 rounded-2xl bg-slate-900/40 border border-slate-800 text-center">
+          <div class="w-12 h-12 mx-auto rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xl mb-3">
+            🏋️
+          </div>
+          <h4 class="text-base font-semibold text-white">Nenhuma ficha prescrita</h4>
+          <p class="text-xs text-slate-400 max-w-sm mx-auto mt-1 mb-4">
+            Este aluno ainda não possui uma ficha de treino ativa.
+          </p>
+          <RouterLink 
+            to="/workouts" 
+            class="px-4 py-2 text-xs font-semibold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-xl inline-block"
+          >
+            Aplicar um Template Existente
+          </RouterLink>
+        </div>
+
+        <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div 
+            v-for="p in studentPlans" 
+            :key="p.id"
+            class="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between"
+          >
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span 
+                  class="px-2 py-0.5 text-[10px] font-bold rounded-md border"
+                  :class="p.status === 'ACTIVE' 
+                    ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' 
+                    : 'bg-slate-500/10 text-slate-400 border-slate-500/30'"
+                >
+                  {{ p.status === 'ACTIVE' ? 'Ficha Ativa' : p.status }}
+                </span>
+                <span class="text-[10px] text-slate-500">{{ formatDate(p.created_at) }}</span>
+              </div>
+
+              <h4 class="font-bold text-white text-base leading-snug">{{ p.name }}</h4>
+              <p v-if="p.template_name" class="text-xs text-slate-400 mt-1">
+                Origem: <span class="text-slate-300">{{ p.template_name }}</span>
+              </p>
+            </div>
+
+            <div class="pt-4 mt-4 border-t border-slate-800 flex items-center justify-between">
+              <span class="text-xs text-slate-400">
+                {{ p.current_version?.days?.length || 0 }} dias de treino
+              </span>
+              <RouterLink 
+                :to="`/workouts/plans/${p.id}`"
+                class="text-xs font-semibold text-emerald-400 hover:text-emerald-300"
+              >
+                Abrir Ficha →
+              </RouterLink>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- 3. Evolução -->
@@ -331,10 +392,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import { studentService } from '../services/studentService'
 import type { StudentDetail } from '../types'
+import { workoutPlanService } from '@/modules/workouts/services/workoutPlanService'
+import type { StudentWorkoutPlanSummary } from '@/modules/workouts/types'
 import { useAuthStore } from '@/stores/auth'
 import AssignTrainerModal from '../components/AssignTrainerModal.vue'
 
@@ -346,6 +409,9 @@ const student = ref<StudentDetail | null>(null)
 const loading = ref(true)
 const errorMessage = ref('')
 const activeTab = ref('visao-geral')
+
+const studentPlans = ref<StudentWorkoutPlanSummary[]>([])
+const loadingPlans = ref(false)
 
 const isAssignModalOpen = ref(false)
 const isEditingNotes = ref(false)
@@ -382,6 +448,23 @@ async function loadStudent() {
     loading.value = false
   }
 }
+
+async function loadPlans() {
+  loadingPlans.value = true
+  try {
+    studentPlans.value = await workoutPlanService.listByStudent(studentId.value)
+  } catch (err) {
+    console.error('Erro ao carregar planos de treino:', err)
+  } finally {
+    loadingPlans.value = false
+  }
+}
+
+watch(activeTab, (newTab) => {
+  if (newTab === 'treinos') {
+    loadPlans()
+  }
+})
 
 function startEditNotes() {
   notesInput.value = student.value?.notes || ''
