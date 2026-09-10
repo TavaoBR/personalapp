@@ -772,14 +772,172 @@
       </div>
 
       <!-- 8. Financeiro -->
-      <div v-else-if="activeTab === 'financeiro'" class="p-8 rounded-2xl bg-slate-900/40 border border-slate-800 text-center">
-        <div class="w-12 h-12 mx-auto rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xl mb-3">
-          💰
+      <div v-else-if="activeTab === 'financeiro'" class="space-y-6">
+        <!-- Top Actions -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+              <span>💰</span> Financeiro & Matrícula do Aluno
+            </h3>
+            <p class="text-xs text-slate-400">Contratos vigentes, planos de consultoria e histórico de cobranças.</p>
+          </div>
+
+          <div class="flex items-center gap-2 self-start">
+            <button
+              @click="isEnrollModalOpen = true"
+              class="px-3.5 py-2 text-xs font-semibold text-slate-200 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700/60 rounded-xl transition-all flex items-center gap-1.5"
+            >
+              <span>💼</span>
+              <span>Matricular em Plano</span>
+            </button>
+
+            <button
+              @click="isStudentInvoiceModalOpen = true"
+              class="px-3.5 py-2 text-xs font-bold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-xl shadow-lg shadow-emerald-500/20 transition-all font-display flex items-center gap-1.5"
+            >
+              <span>🧾</span>
+              <span>+ Nova Cobrança</span>
+            </button>
+          </div>
         </div>
-        <h3 class="text-lg font-semibold text-white">Financeiro & Assinatura do Aluno</h3>
-        <p class="text-sm text-slate-400 max-w-md mx-auto mt-1">
-          Planos contratados, faturas emitidas e controle de mensalidades da consultoria.
-        </p>
+
+        <div v-if="loadingFinancial" class="py-12 text-center text-xs text-slate-400">
+          Carregando dados financeiros do aluno...
+        </div>
+
+        <div v-else class="space-y-6">
+          <!-- Card de Matrícula Ativa -->
+          <div class="p-6 rounded-2xl bg-gradient-to-br from-slate-900/80 to-slate-950/80 border border-slate-800">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+                  Plano Contratado Atualmente
+                </span>
+                <div v-if="activeEnrollment" class="space-y-2">
+                  <div class="flex items-center gap-3">
+                    <h4 class="text-lg font-bold text-white">{{ activeEnrollment.plan_name }}</h4>
+                    <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase">
+                      Ativo
+                    </span>
+                  </div>
+
+                  <div class="flex flex-wrap items-center gap-4 text-xs text-slate-300 pt-1">
+                    <div>
+                      <span class="text-slate-500">Valor acordado: </span>
+                      <strong class="font-mono text-emerald-400 font-bold">R$ {{ activeEnrollment.price.toFixed(2) }}</strong>
+                    </div>
+                    <div>
+                      <span class="text-slate-500">Dia de vencimento: </span>
+                      <strong class="font-mono text-white">Dia {{ activeEnrollment.billing_day }}</strong>
+                    </div>
+                    <div>
+                      <span class="text-slate-500">Início: </span>
+                      <span class="font-mono text-slate-400">{{ formatDate(activeEnrollment.start_date) }}</span>
+                    </div>
+                  </div>
+
+                  <p v-if="activeEnrollment.notes" class="text-xs text-slate-400 italic pt-1">
+                    "{{ activeEnrollment.notes }}"
+                  </p>
+                </div>
+
+                <div v-else class="py-2">
+                  <p class="text-xs text-slate-400">O aluno não possui nenhuma matrícula recorrente ativa no momento.</p>
+                </div>
+              </div>
+
+              <div v-if="activeEnrollment">
+                <button
+                  @click="handleCancelEnrollment(activeEnrollment.id)"
+                  :disabled="cancellingEnrollment"
+                  class="px-3 py-1.5 text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 border border-rose-500/20 rounded-xl transition-all"
+                >
+                  {{ cancellingEnrollment ? 'Cancelando...' : 'Cancelar Matrícula' }}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Histórico de Cobranças / Faturas -->
+          <div class="space-y-3">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">
+              Histórico de Mensalidades & Cobranças ({{ studentPayments.length }})
+            </h4>
+
+            <div v-if="studentPayments.length === 0" class="p-8 rounded-2xl bg-slate-900/40 border border-slate-800 text-center">
+              <div class="w-12 h-12 mx-auto rounded-xl bg-slate-800 text-slate-400 flex items-center justify-center text-xl mb-3">
+                🧾
+              </div>
+              <h4 class="text-base font-semibold text-white">Nenhuma fatura registrada</h4>
+              <p class="text-xs text-slate-400 max-w-sm mx-auto mt-1 mb-4">
+                Emita cobranças avulsas ou vincule o aluno a um plano comercial.
+              </p>
+              <button
+                @click="isStudentInvoiceModalOpen = true"
+                class="px-4 py-2 text-xs font-semibold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-xl font-display"
+              >
+                Emitir Primeira Cobrança
+              </button>
+            </div>
+
+            <div v-else class="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900/60">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-950/60 text-slate-400 font-semibold uppercase tracking-wider text-[10px] border-b border-slate-800">
+                  <tr>
+                    <th class="px-4 py-3">Vencimento</th>
+                    <th class="px-4 py-3">Referência</th>
+                    <th class="px-4 py-3">Valor</th>
+                    <th class="px-4 py-3">Status</th>
+                    <th class="px-4 py-3">Pagamento</th>
+                    <th class="px-4 py-3 text-right">Ação</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800/80">
+                  <tr
+                    v-for="p in studentPayments"
+                    :key="p.id"
+                    class="hover:bg-slate-800/40 transition-colors"
+                  >
+                    <td class="px-4 py-3.5 font-mono text-slate-300 whitespace-nowrap">
+                      {{ formatDate(p.due_date) }}
+                    </td>
+                    <td class="px-4 py-3.5 text-slate-400">
+                      {{ p.reference_period || '-' }}
+                      <span v-if="p.notes" class="text-[11px] text-slate-500 block truncate max-w-xs">{{ p.notes }}</span>
+                    </td>
+                    <td class="px-4 py-3.5 font-mono font-bold text-white whitespace-nowrap">
+                      R$ {{ p.amount.toFixed(2) }}
+                    </td>
+                    <td class="px-4 py-3.5 whitespace-nowrap">
+                      <span
+                        class="px-2.5 py-1 text-[10px] font-bold rounded-full border"
+                        :class="getPaymentBadgeClass(p.status)"
+                      >
+                        {{ getPaymentStatusLabel(p.status) }}
+                      </span>
+                    </td>
+                    <td class="px-4 py-3.5 text-[11px] text-slate-400 whitespace-nowrap">
+                      <span v-if="p.status === 'PAID'">
+                        {{ p.payment_method }} • {{ formatDate(p.paid_at || '') }}
+                      </span>
+                      <span v-else class="text-slate-600">-</span>
+                    </td>
+                    <td class="px-4 py-3.5 text-right whitespace-nowrap">
+                      <button
+                        v-if="p.status !== 'PAID' && p.status !== 'CANCELLED'"
+                        @click="openStudentSettlePayment(p)"
+                        class="px-3 py-1 text-[11px] font-bold text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 rounded-lg transition-all"
+                      >
+                        Dar Baixa
+                      </button>
+                      <span v-else class="text-[11px] text-slate-500">Concluído</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- 9. Timeline -->
@@ -943,6 +1101,30 @@
         @close="isCreateTimelineModalOpen = false"
         @created="loadTimeline(selectedTimelineFilter)"
       />
+
+      <!-- Modais do Módulo Financeiro -->
+      <EnrollStudentModal
+        :is-open="isEnrollModalOpen"
+        :student-id="student.id"
+        :student-name="student.user.name"
+        @close="isEnrollModalOpen = false"
+        @enrolled="loadStudentFinancial"
+      />
+
+      <CreateInvoiceModal
+        :is-open="isStudentInvoiceModalOpen"
+        :fixed-student-id="student.id"
+        :student-name="student.user.name"
+        @close="isStudentInvoiceModalOpen = false"
+        @created="loadStudentFinancial"
+      />
+
+      <RecordPaymentModal
+        :is-open="isStudentRecordPaymentModalOpen"
+        :payment="selectedStudentPaymentToSettle"
+        @close="isStudentRecordPaymentModalOpen = false"
+        @paid="loadStudentFinancial"
+      />
     </div>
   </div>
 </template>
@@ -984,6 +1166,11 @@ import { timelineService } from '@/modules/timeline/services/timelineService'
 import type { TimelineEvent } from '@/modules/timeline/types'
 import TimelineFeed from '@/modules/timeline/components/TimelineFeed.vue'
 import CreateTimelineEventModal from '@/modules/timeline/components/CreateTimelineEventModal.vue'
+import { financialService } from '@/modules/financial/services/financialService'
+import type { StudentEnrollment, StudentPayment } from '@/modules/financial/types'
+import EnrollStudentModal from '@/modules/financial/components/EnrollStudentModal.vue'
+import CreateInvoiceModal from '@/modules/financial/components/CreateInvoiceModal.vue'
+import RecordPaymentModal from '@/modules/financial/components/RecordPaymentModal.vue'
 
 const route = useRoute()
 const authStore = useAuthStore()
@@ -1050,6 +1237,19 @@ const timelineFilters = [
   { type: 'CHECKIN_SUBMITTED', label: '💬 Check-ins' },
   { type: 'NOTE_ADDED', label: '📝 Anotações' },
 ]
+
+const studentEnrollments = ref<StudentEnrollment[]>([])
+const studentPayments = ref<StudentPayment[]>([])
+const loadingFinancial = ref(false)
+const cancellingEnrollment = ref(false)
+const isEnrollModalOpen = ref(false)
+const isStudentInvoiceModalOpen = ref(false)
+const isStudentRecordPaymentModalOpen = ref(false)
+const selectedStudentPaymentToSettle = ref<StudentPayment | null>(null)
+
+const activeEnrollment = computed(() => {
+  return studentEnrollments.value.find(e => e.status === 'ACTIVE')
+})
 
 const isAssignModalOpen = ref(false)
 const isEditingNotes = ref(false)
@@ -1272,10 +1472,63 @@ watch(activeTab, (newTab) => {
     loadGoals()
   } else if (newTab === 'acompanhamento') {
     loadFollowUpData()
+  } else if (newTab === 'financeiro') {
+    loadStudentFinancial()
   } else if (newTab === 'timeline') {
     loadTimeline(selectedTimelineFilter.value)
   }
 })
+
+async function loadStudentFinancial() {
+  loadingFinancial.value = true
+  try {
+    const [enrollments, payments] = await Promise.all([
+      financialService.listStudentEnrollments(studentId.value),
+      financialService.listStudentPayments(studentId.value)
+    ])
+    studentEnrollments.value = enrollments
+    studentPayments.value = payments
+  } catch (err) {
+    console.error('Erro ao carregar dados financeiros do aluno:', err)
+  } finally {
+    loadingFinancial.value = false
+  }
+}
+
+async function handleCancelEnrollment(enrollmentId: string) {
+  if (!confirm('Tem certeza que deseja cancelar esta matrícula?')) return
+  cancellingEnrollment.value = true
+  try {
+    await financialService.cancelEnrollment(enrollmentId)
+    await loadStudentFinancial()
+  } catch (err: any) {
+    alert(err.message || 'Erro ao cancelar matrícula.')
+  } finally {
+    cancellingEnrollment.value = false
+  }
+}
+
+function openStudentSettlePayment(p: StudentPayment) {
+  selectedStudentPaymentToSettle.value = {
+    ...p,
+    student_name: student.value?.user.name || 'Aluno'
+  }
+  isStudentRecordPaymentModalOpen.value = true
+}
+
+function getPaymentBadgeClass(status: string): string {
+  if (status === 'PAID') return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+  if (status === 'OVERDUE') return 'bg-rose-500/10 text-rose-400 border-rose-500/20'
+  if (status === 'CANCELLED') return 'bg-slate-500/10 text-slate-400 border-slate-500/20'
+  return 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+}
+
+function getPaymentStatusLabel(status: string): string {
+  if (status === 'PAID') return 'Pago'
+  if (status === 'OVERDUE') return 'Vencido'
+  if (status === 'CANCELLED') return 'Cancelado'
+  return 'Pendente'
+}
 
 function startEditNotes() {
   notesInput.value = student.value?.notes || ''

@@ -100,7 +100,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/financial',
     name: 'financial',
-    component: () => import('@/modules/dashboard/pages/DashboardPage.vue'),
+    component: () => import('@/modules/financial/pages/FinancialDashboardPage.vue'),
     meta: { requiresAuth: true, roles: ['OWNER', 'ADMIN', 'TRAINER'] },
   },
   {
