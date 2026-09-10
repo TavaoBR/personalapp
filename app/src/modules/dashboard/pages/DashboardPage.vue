@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { apiClient } from '@/shared/api/apiClient';
+import { analyticsService } from '@/modules/analytics/services/analyticsService';
 import Badge from '@/shared/components/ui/Badge.vue';
 import Button from '@/shared/components/ui/Button.vue';
 import AppLayout from '@/shared/layouts/AppLayout.vue';
@@ -48,33 +49,26 @@ const data = ref<DashboardData>({
 async function loadDashboard() {
   isLoading.value = true;
   try {
-    const res = await apiClient.get<any>('/analytics/dashboard');
+    const res = await analyticsService.getPortfolioDashboard();
     data.value = {
-      students_count: res.active_students_count || 12,
-      workouts_today: res.workouts_today || 8,
-      adherence_rate: res.overall_adherence || 84,
-      students_at_risk: res.students_at_risk_count || 2,
-      recent_sessions: res.recent_sessions || [
+      students_count: res.active_students,
+      workouts_today: res.workouts_last_7_days,
+      adherence_rate: res.total_students > 0 ? Math.round((res.active_students / res.total_students) * 100) : 100,
+      students_at_risk: res.students_at_risk,
+      recent_sessions: [
         {
           id: '1',
-          student_name: 'Lucas Carvalho',
-          workout_name: 'Treino A - Peitoral & Tríceps',
-          completed_at: 'Hoje, às 14:30',
+          student_name: 'Treinos da Semana',
+          workout_name: `${res.workouts_last_7_days} sessões registradas`,
+          completed_at: 'Últimos 7 dias',
           completion_percentage: 100,
         },
         {
           id: '2',
-          student_name: 'Mariana Duarte',
-          workout_name: 'Treino B - Membros Inferiores',
-          completed_at: 'Hoje, às 11:15',
-          completion_percentage: 95,
-        },
-        {
-          id: '3',
-          student_name: 'Rodrigo Silva',
-          workout_name: 'Treino C - Dorsal & Bíceps',
-          completed_at: 'Ontem, às 19:40',
-          completion_percentage: 80,
+          student_name: 'Volume Mensal',
+          workout_name: `${res.workouts_last_30_days} sessões concluídas`,
+          completed_at: 'Últimos 30 dias',
+          completion_percentage: 100,
         },
       ],
     };

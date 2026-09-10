@@ -309,7 +309,7 @@
           Carregando dados de evolução...
         </div>
 
-        <div v-else-if="progressData" class="space-y-6">
+        <div v-if="progressData" class="space-y-6">
           <div class="p-6 rounded-3xl bg-slate-900/60 border border-slate-800 space-y-4">
             <div class="flex items-center justify-between">
               <span class="text-xs text-slate-400 font-medium">Peso Corporal Mais Recente</span>
@@ -347,6 +347,20 @@
             </div>
           </div>
         </div>
+
+        <!-- 3.1 Comparativo de Treinos & Aderência -->
+        <PeriodComparisonCard
+          :analytics="studentAnalytics"
+          :loading="loadingAnalytics"
+          :selected-days="analyticsDays"
+          @select-days="loadStudentAnalytics"
+        />
+
+        <!-- 3.2 Recordes Pessoais (PRs) de Carga -->
+        <PRsListCard
+          :prs="studentPRs"
+          :loading="loadingPRs"
+        />
       </div>
 
       <!-- 4. Avaliações -->
@@ -531,6 +545,10 @@ import AssignTrainerModal from '../components/AssignTrainerModal.vue'
 import CreateAssessmentModal from '@/modules/assessments/components/CreateAssessmentModal.vue'
 import RecordMetricModal from '@/modules/assessments/components/RecordMetricModal.vue'
 import AssessmentDetailModal from '@/modules/assessments/components/AssessmentDetailModal.vue'
+import { analyticsService } from '@/modules/analytics/services/analyticsService'
+import type { StudentAnalyticsResponse, PersonalRecord } from '@/modules/analytics/types'
+import PeriodComparisonCard from '@/modules/analytics/components/PeriodComparisonCard.vue'
+import PRsListCard from '@/modules/analytics/components/PRsListCard.vue'
 
 const route = useRoute()
 const authStore = useAuthStore()
@@ -553,6 +571,12 @@ const selectedAssessmentDetail = ref<AssessmentDetail | null>(null)
 const progressData = ref<StudentProgressData | null>(null)
 const loadingProgress = ref(false)
 const isRecordMetricModalOpen = ref(false)
+
+const studentAnalytics = ref<StudentAnalyticsResponse | null>(null)
+const loadingAnalytics = ref(false)
+const analyticsDays = ref(30)
+const studentPRs = ref<PersonalRecord[]>([])
+const loadingPRs = ref(false)
 
 const isAssignModalOpen = ref(false)
 const isEditingNotes = ref(false)
@@ -623,6 +647,40 @@ async function loadProgressData() {
   }
 }
 
+async function loadStudentAnalytics(days: number = 30) {
+  analyticsDays.value = days
+  loadingAnalytics.value = true
+  try {
+    const now = new Date()
+    const startA = new Date(now.getTime() - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+    const endA = now.toISOString().split('T')[0]
+    const startB = new Date(now.getTime() - days * 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+    const endB = startA
+
+    studentAnalytics.value = await analyticsService.getStudentAnalytics(studentId.value, {
+      start_a: startA,
+      end_a: endA,
+      start_b: startB,
+      end_b: endB
+    })
+  } catch (err) {
+    console.error('Erro ao carregar analytics do aluno:', err)
+  } finally {
+    loadingAnalytics.value = false
+  }
+}
+
+async function loadStudentPRs() {
+  loadingPRs.value = true
+  try {
+    studentPRs.value = await analyticsService.getStudentPRs(studentId.value)
+  } catch (err) {
+    console.error('Erro ao carregar PRs do aluno:', err)
+  } finally {
+    loadingPRs.value = false
+  }
+}
+
 async function openAssessmentDetail(id: string) {
   try {
     selectedAssessmentDetail.value = await assessmentService.getById(id)
@@ -639,6 +697,8 @@ watch(activeTab, (newTab) => {
     loadAssessments()
   } else if (newTab === 'evolucao') {
     loadProgressData()
+    loadStudentAnalytics(analyticsDays.value)
+    loadStudentPRs()
   }
 })
 

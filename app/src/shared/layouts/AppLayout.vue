@@ -17,6 +17,7 @@ import {
   ShieldAlert,
   Sun,
   Target,
+  TrendingUp,
   Users,
 } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
@@ -32,6 +33,7 @@ const isTenantMenuOpen = ref(false);
 
 const navigationItems = [
   { name: 'Dashboard', path: '/dashboard', icon: Home },
+  { name: 'Analytics', path: '/analytics', icon: TrendingUp },
   { name: 'Alunos', path: '/students', icon: Users },
   { name: 'Treinadores', path: '/trainers', icon: Users },
   { name: 'Fichas & Treinos', path: '/workouts', icon: Dumbbell },
