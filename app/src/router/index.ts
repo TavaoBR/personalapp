@@ -82,7 +82,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/anamnesis',
     name: 'anamnesis',
-    component: () => import('@/modules/dashboard/pages/DashboardPage.vue'),
+    component: () => import('@/modules/anamnesis/pages/AnamnesisTemplateListPage.vue'),
     meta: { requiresAuth: true, roles: ['OWNER', 'ADMIN', 'TRAINER'] },
   },
   {

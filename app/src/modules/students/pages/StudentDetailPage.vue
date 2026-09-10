@@ -431,14 +431,72 @@
       </div>
 
       <!-- 5. Anamnese -->
-      <div v-else-if="activeTab === 'anamnese'" class="p-8 rounded-2xl bg-slate-900/40 border border-slate-800 text-center">
-        <div class="w-12 h-12 mx-auto rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-xl mb-3">
-          📋
+      <div v-else-if="activeTab === 'anamnese'" class="space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+              <span>📋</span> Anamneses & Histórico Clínico
+            </h3>
+            <p class="text-xs text-slate-400">Questionários de saúde, patologias, cirurgias e restrições articulares.</p>
+          </div>
+
+          <button
+            @click="isFillAnamnesisModalOpen = true"
+            class="px-4 py-2 text-xs font-semibold text-slate-950 bg-amber-400 hover:bg-amber-300 rounded-xl transition-all font-display"
+          >
+            + Preencher Anamnese
+          </button>
         </div>
-        <h3 class="text-lg font-semibold text-white">Questionário de Anamnese</h3>
-        <p class="text-sm text-slate-400 max-w-md mx-auto mt-1">
-          Histórico médico, cirurgias, medicamentos contínuos e restrições articulares.
-        </p>
+
+        <div v-if="loadingAnamneses" class="py-12 text-center text-xs text-slate-400">
+          Carregando anamneses do aluno...
+        </div>
+
+        <div v-else-if="anamneses.length === 0" class="p-8 rounded-2xl bg-slate-900/40 border border-slate-800 text-center">
+          <div class="w-12 h-12 mx-auto rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-xl mb-3">
+            📋
+          </div>
+          <h4 class="text-base font-semibold text-white">Nenhuma anamnese registrada</h4>
+          <p class="text-xs text-slate-400 max-w-sm mx-auto mt-1 mb-4">
+            Aplique um questionário de anamnese para registrar o histórico de saúde do aluno.
+          </p>
+          <button
+            @click="isFillAnamnesisModalOpen = true"
+            class="px-4 py-2 text-xs font-semibold text-slate-950 bg-amber-400 hover:bg-amber-300 rounded-xl font-display"
+          >
+            Preencher Agora
+          </button>
+        </div>
+
+        <div v-else class="space-y-3">
+          <div 
+            v-for="a in anamneses" 
+            :key="a.id"
+            class="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-slate-700 transition-all flex items-center justify-between"
+          >
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-white text-sm">📋 {{ a.template_title }}</span>
+                <span class="px-2 py-0.5 text-[10px] rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 font-mono">
+                  v{{ a.version_number }}
+                </span>
+                <span class="text-xs text-slate-400">
+                  • {{ formatDate(a.answered_at) }}
+                </span>
+              </div>
+              <span class="text-xs text-slate-400 block">
+                {{ a.answers_count }} perguntas respondidas
+              </span>
+            </div>
+
+            <button
+              @click="openAnamnesisDetail(a.id)"
+              class="px-3.5 py-1.5 text-xs font-semibold text-amber-400 hover:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 rounded-xl"
+            >
+              Visualizar Prontuário →
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- 6. Metas -->
@@ -527,6 +585,21 @@
         :assessment="selectedAssessmentDetail"
         @close="isAssessmentDetailModalOpen = false"
       />
+
+      <!-- Modais de Anamnese -->
+      <FillAnamnesisModal
+        :is-open="isFillAnamnesisModalOpen"
+        :student-id="student.id"
+        :student-name="student.user.name"
+        @close="isFillAnamnesisModalOpen = false"
+        @submitted="loadAnamneses"
+      />
+
+      <AnamnesisDetailModal
+        :is-open="isAnamnesisDetailModalOpen"
+        :anamnesis="selectedAnamnesisDetail"
+        @close="isAnamnesisDetailModalOpen = false"
+      />
     </div>
   </div>
 </template>
@@ -549,6 +622,10 @@ import { analyticsService } from '@/modules/analytics/services/analyticsService'
 import type { StudentAnalyticsResponse, PersonalRecord } from '@/modules/analytics/types'
 import PeriodComparisonCard from '@/modules/analytics/components/PeriodComparisonCard.vue'
 import PRsListCard from '@/modules/analytics/components/PRsListCard.vue'
+import { anamnesisService } from '@/modules/anamnesis/services/anamnesisService'
+import type { StudentAnamnesisSummary, StudentAnamnesisDetail } from '@/modules/anamnesis/types'
+import FillAnamnesisModal from '@/modules/anamnesis/components/FillAnamnesisModal.vue'
+import AnamnesisDetailModal from '@/modules/anamnesis/components/AnamnesisDetailModal.vue'
 
 const route = useRoute()
 const authStore = useAuthStore()
@@ -577,6 +654,12 @@ const loadingAnalytics = ref(false)
 const analyticsDays = ref(30)
 const studentPRs = ref<PersonalRecord[]>([])
 const loadingPRs = ref(false)
+
+const anamneses = ref<StudentAnamnesisSummary[]>([])
+const loadingAnamneses = ref(false)
+const isFillAnamnesisModalOpen = ref(false)
+const isAnamnesisDetailModalOpen = ref(false)
+const selectedAnamnesisDetail = ref<StudentAnamnesisDetail | null>(null)
 
 const isAssignModalOpen = ref(false)
 const isEditingNotes = ref(false)
@@ -690,6 +773,26 @@ async function openAssessmentDetail(id: string) {
   }
 }
 
+async function loadAnamneses() {
+  loadingAnamneses.value = true
+  try {
+    anamneses.value = await anamnesisService.listStudentAnamneses(studentId.value)
+  } catch (err) {
+    console.error('Erro ao carregar anamneses do aluno:', err)
+  } finally {
+    loadingAnamneses.value = false
+  }
+}
+
+async function openAnamnesisDetail(id: string) {
+  try {
+    selectedAnamnesisDetail.value = await anamnesisService.getAnamnesisDetail(id)
+    isAnamnesisDetailModalOpen.value = true
+  } catch (err) {
+    console.error('Erro ao abrir detalhes da anamnese:', err)
+  }
+}
+
 watch(activeTab, (newTab) => {
   if (newTab === 'treinos') {
     loadPlans()
@@ -699,6 +802,8 @@ watch(activeTab, (newTab) => {
     loadProgressData()
     loadStudentAnalytics(analyticsDays.value)
     loadStudentPRs()
+  } else if (newTab === 'anamnese') {
+    loadAnamneses()
   }
 })
 
