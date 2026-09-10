@@ -106,7 +106,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/saas-billing',
     name: 'saas-billing',
-    component: () => import('@/modules/dashboard/pages/DashboardPage.vue'),
+    component: () => import('@/modules/saas-billing/pages/SubscriptionPage.vue'),
     meta: { requiresAuth: true, roles: ['OWNER', 'ADMIN'] },
   },
   {
