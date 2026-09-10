@@ -3,6 +3,9 @@ import Badge from '@/shared/components/ui/Badge.vue';
 import Button from '@/shared/components/ui/Button.vue';
 import StudentLayout from '@/shared/layouts/StudentLayout.vue';
 import { useAuthStore } from '@/stores/auth';
+import { workoutSessionService } from '@/modules/workouts/services/workoutSessionService';
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import {
   ArrowRight,
   Calendar,
@@ -14,6 +17,20 @@ import {
 } from 'lucide-vue-next';
 
 const authStore = useAuthStore();
+const router = useRouter();
+const startingWorkout = ref(false);
+
+async function handleStartWorkout() {
+  startingWorkout.value = true;
+  try {
+    const session = await workoutSessionService.start();
+    router.push(`/portal/workout/live/${session.id}`);
+  } catch (err: any) {
+    alert(err.message || 'Erro ao iniciar sessão de treino.');
+  } finally {
+    startingWorkout.value = false;
+  }
+}
 </script>
 
 <template>
@@ -47,13 +64,16 @@ const authStore = useAuthStore();
         6 exercícios prescritos • Cargas personalizadas
       </p>
 
-      <RouterLink to="/portal/workout">
-        <Button class="w-full bg-white text-brand-700 hover:bg-white/90 justify-center font-bold shadow-md" size="lg">
-          <Dumbbell class="w-4 h-4 mr-1.5" />
-          <span>Iniciar Treino Agora</span>
-          <ArrowRight class="w-4 h-4 ml-1" />
-        </Button>
-      </RouterLink>
+      <Button 
+        @click="handleStartWorkout" 
+        :disabled="startingWorkout"
+        class="w-full bg-white text-brand-700 hover:bg-white/90 justify-center font-bold shadow-md" 
+        size="lg"
+      >
+        <Dumbbell class="w-4 h-4 mr-1.5" />
+        <span>{{ startingWorkout ? 'Iniciando Sessão...' : 'Iniciar Treino Agora' }}</span>
+        <ArrowRight class="w-4 h-4 ml-1" />
+      </Button>
     </div>
 
     <!-- Metas da Semana & Sequência (Streak) -->

@@ -115,6 +115,14 @@ const routes: RouteRecordRaw[] = [
     redirect: '/settings/tenant',
   },
 
+  // Rotas de Treino ao Vivo (Personal ou Aluno)
+  {
+    path: '/workouts/live/:id',
+    name: 'live-workout',
+    component: () => import('@/modules/workouts/pages/LiveWorkoutPage.vue'),
+    meta: { requiresAuth: true },
+  },
+
   // Rotas do Aluno
   {
     path: '/portal/home',
@@ -129,9 +137,15 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true, roles: ['STUDENT'] },
   },
   {
+    path: '/portal/workout/live/:id',
+    name: 'student-live-workout',
+    component: () => import('@/modules/workouts/pages/LiveWorkoutPage.vue'),
+    meta: { requiresAuth: true, roles: ['STUDENT'] },
+  },
+  {
     path: '/portal/history',
     name: 'student-history',
-    component: () => import('@/modules/student-portal/pages/StudentHomePage.vue'),
+    component: () => import('@/modules/workouts/pages/WorkoutHistoryPage.vue'),
     meta: { requiresAuth: true, roles: ['STUDENT'] },
   },
   {
