@@ -783,14 +783,44 @@
       </div>
 
       <!-- 9. Timeline -->
-      <div v-else-if="activeTab === 'timeline'" class="p-8 rounded-2xl bg-slate-900/40 border border-slate-800 text-center">
-        <div class="w-12 h-12 mx-auto rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-xl mb-3">
-          ⏳
+      <div v-else-if="activeTab === 'timeline'" class="space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+              <span>⏳</span> Linha do Tempo Auditável
+            </h3>
+            <p class="text-xs text-slate-400">Histórico de prescrições, execuções, avaliações e anotações clínicas.</p>
+          </div>
+
+          <button
+            @click="isCreateTimelineModalOpen = true"
+            class="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl shadow-lg shadow-indigo-600/20 transition-all font-display self-start flex items-center gap-1.5"
+          >
+            <span>➕</span>
+            <span>Registrar Evento Manual</span>
+          </button>
         </div>
-        <h3 class="text-lg font-semibold text-white">Timeline & Linha do Tempo</h3>
-        <p class="text-sm text-slate-400 max-w-md mx-auto mt-1">
-          Registro cronológico auditável de todos os eventos de treino, metas e prescrições.
-        </p>
+
+        <!-- Filtros Rápidos -->
+        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 text-xs">
+          <button
+            v-for="f in timelineFilters"
+            :key="f.type"
+            @click="changeTimelineFilter(f.type)"
+            class="px-3 py-1.5 rounded-xl font-medium transition-all whitespace-nowrap border"
+            :class="selectedTimelineFilter === f.type 
+              ? 'bg-indigo-600 text-white border-indigo-600 font-semibold shadow-md shadow-indigo-600/20' 
+              : 'bg-slate-900/60 text-slate-400 border-slate-800 hover:text-white hover:border-slate-700'"
+          >
+            {{ f.label }}
+          </button>
+        </div>
+
+        <!-- Feed de Eventos -->
+        <TimelineFeed
+          :events="timelineEvents"
+          :loading="loadingTimeline"
+        />
       </div>
 
       <!-- 10. Arquivos -->
@@ -904,6 +934,15 @@
         @close="isPlanDetailModalOpen = false"
         @updated="loadFollowUpData"
       />
+
+      <!-- Modal de Registro de Evento na Timeline -->
+      <CreateTimelineEventModal
+        :is-open="isCreateTimelineModalOpen"
+        :student-id="student.id"
+        :student-name="student.user.name"
+        @close="isCreateTimelineModalOpen = false"
+        @created="loadTimeline(selectedTimelineFilter)"
+      />
     </div>
   </div>
 </template>
@@ -941,6 +980,10 @@ import NewCheckInModal from '@/modules/follow-up/components/NewCheckInModal.vue'
 import CheckInFeedbackModal from '@/modules/follow-up/components/CheckInFeedbackModal.vue'
 import PrescribePlanModal from '@/modules/follow-up/components/PrescribePlanModal.vue'
 import FollowUpPlanDetailModal from '@/modules/follow-up/components/FollowUpPlanDetailModal.vue'
+import { timelineService } from '@/modules/timeline/services/timelineService'
+import type { TimelineEvent } from '@/modules/timeline/types'
+import TimelineFeed from '@/modules/timeline/components/TimelineFeed.vue'
+import CreateTimelineEventModal from '@/modules/timeline/components/CreateTimelineEventModal.vue'
 
 const route = useRoute()
 const authStore = useAuthStore()
@@ -993,6 +1036,20 @@ const selectedCheckInForFeedback = ref<StudentCheckIn | null>(null)
 const isPrescribePlanModalOpen = ref(false)
 const isPlanDetailModalOpen = ref(false)
 const selectedPlanDetail = ref<FollowUpPlanDetail | null>(null)
+
+const timelineEvents = ref<TimelineEvent[]>([])
+const loadingTimeline = ref(false)
+const selectedTimelineFilter = ref('')
+const isCreateTimelineModalOpen = ref(false)
+
+const timelineFilters = [
+  { type: '', label: 'Todos os Eventos' },
+  { type: 'WORKOUT_COMPLETED', label: '🏋️ Treinos' },
+  { type: 'ASSESSMENT_RECORDED', label: '📊 Avaliações' },
+  { type: 'GOAL_ACHIEVED', label: '🎯 Metas' },
+  { type: 'CHECKIN_SUBMITTED', label: '💬 Check-ins' },
+  { type: 'NOTE_ADDED', label: '📝 Anotações' },
+]
 
 const isAssignModalOpen = ref(false)
 const isEditingNotes = ref(false)
@@ -1181,6 +1238,25 @@ async function openPlanDetail(id: string) {
   }
 }
 
+async function loadTimeline(eventType?: string) {
+  loadingTimeline.value = true
+  try {
+    const res = await timelineService.listByStudent(studentId.value, {
+      event_type: eventType || undefined
+    })
+    timelineEvents.value = res.events
+  } catch (err) {
+    console.error('Erro ao carregar timeline:', err)
+  } finally {
+    loadingTimeline.value = false
+  }
+}
+
+function changeTimelineFilter(type: string) {
+  selectedTimelineFilter.value = type
+  loadTimeline(type)
+}
+
 watch(activeTab, (newTab) => {
   if (newTab === 'treinos') {
     loadPlans()
@@ -1196,6 +1272,8 @@ watch(activeTab, (newTab) => {
     loadGoals()
   } else if (newTab === 'acompanhamento') {
     loadFollowUpData()
+  } else if (newTab === 'timeline') {
+    loadTimeline(selectedTimelineFilter.value)
   }
 })
 
