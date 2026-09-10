@@ -1,7 +1,10 @@
-# Environment and secrets
-.env.local
-.env.*.local
-*.local
+# Environment and secrets (Never commit any .env file containing secrets or environment configs)
+.env
+.env.*
+*.env
+*.env.*
+!.env.example
+!*.env.example
 
 # Dependencies
 vendor/
@@ -12,8 +15,17 @@ var/
 storage/
 .phpunit.cache/
 
+# Builds
+dist/
+dist-ssr/
+
 # OS and IDE
 .DS_Store
 Thumbs.db
 .idea/
 .vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
